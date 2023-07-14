@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/api"
@@ -13,7 +14,26 @@ import (
 	"github.com/prometheus/common/model"
 )
 
-func Query() float64 {
+type PromQLQuery struct {
+	Metric string
+	Params map[string]string
+}
+
+func (q PromQLQuery) String() string {
+
+	params := make([]string, 0, len(q.Params))
+	for key, value := range q.Params {
+		params = append(params, key+`="`+value+`"`)
+	}
+	if len(params) > 0 {
+		return q.Metric + "{" + strings.Join(params, ", ") + "}"
+	} else {
+		return q.Metric
+	}
+
+}
+
+func Query(query string) float64 {
 
 	// create prometheus API client
 	client, err := api.NewClient(api.Config{
@@ -21,17 +41,15 @@ func Query() float64 {
 	})
 	if err != nil {
 		fmt.Printf("Error creating client: %v\n", err)
-		os.Exit(1)
 	}
 
 	// create prometheus API object
 	v1api := v1.NewAPI(client)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "up{container='prometheus'}", time.Now(), v1.WithTimeout(5*time.Second))
+	result, warnings, err := v1api.Query(ctx, query, time.Now(), v1.WithTimeout(5*time.Second))
 	if err != nil {
 		fmt.Printf("Error querying Prometheus: %v\n", err)
-		os.Exit(1)
 	}
 	if len(warnings) > 0 {
 		fmt.Printf("Warnings: %v\n", warnings)
