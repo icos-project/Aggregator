@@ -21,7 +21,7 @@ env:
   TMT_REGISTRY_COMMON: registry.atosresearch.eu:18488
   # Needed for the target repo in nexus
   ETIM_REGISTRY_ICOS: registry.atosresearch.eu:18484
-  IMAGE_NAME: icos-server-linux
+  IMAGE_NAME: icos-monitoring-aggregator
 
 jobs:
   build_and_push_image:
