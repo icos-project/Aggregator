@@ -1,4 +1,4 @@
-module icos/aggregator
+module icos/server
 
 go 1.20
 

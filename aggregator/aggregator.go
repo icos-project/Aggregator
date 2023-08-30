@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -70,4 +71,8 @@ func Query(query string) float64 {
 	default:
 		panic(errors.New("not implemented"))
 	}
+}
+
+func ServeQuery(w http.ResponseWriter, r *http.Request) {
+	Query(`up{container="prometheus"}`) // TODO: pass query string from API call
 }
