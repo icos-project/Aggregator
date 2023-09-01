@@ -1,7 +1,7 @@
 package main
 
 import (
-	aggregator "icos/server/aggregator"
+	"icos/server/querier"
 
 	"errors"
 	"fmt"
@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	http.HandleFunc("/", aggregator.ServeQuery)
+	http.HandleFunc("/", querier.ServeQuery)
 
 	fmt.Println("server listening on :8080")
 
