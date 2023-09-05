@@ -34,7 +34,7 @@ func (q PromQLQuery) String() string {
 
 }
 
-func Query(query string) float64 {
+func Query(query string) float64 { // TODO: return models.Vector
 
 	// create prometheus API client
 	client, err := api.NewClient(api.Config{

@@ -10,7 +10,7 @@ func TestQuery(t *testing.T) {
 
 	q := PromQLQuery{
 		Metric: "up",
-		Params: map[string]string{"container": "prometheus"}}
+		Params: map[string]string{}}
 
 	want := float64(1)
 

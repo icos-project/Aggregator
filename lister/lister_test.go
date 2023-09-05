@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestListMetrics(t *testing.T) {
+func TestListMetrics(t *testing.T) { // TODO: Check if {"up","promhttp_metric_handler_requests_total"} is contained in the labels list
 	os.Setenv("PROMETHEUS_ADDRESS", "http://localhost:10902") // thanos-query
 
 	want := []string{"up"}
