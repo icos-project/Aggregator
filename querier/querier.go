@@ -1,9 +1,10 @@
-package aggregator
+package querier
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -33,7 +34,7 @@ func (q PromQLQuery) String() string {
 
 }
 
-func Query(query string) float64 {
+func Query(query string) float64 { // TODO: return models.Vector
 
 	// create prometheus API client
 	client, err := api.NewClient(api.Config{
@@ -70,4 +71,8 @@ func Query(query string) float64 {
 	default:
 		panic(errors.New("not implemented"))
 	}
+}
+
+func ServeQuery(w http.ResponseWriter, r *http.Request) {
+	Query(`up{container="prometheus"}`) // TODO: pass query string from API call
 }
