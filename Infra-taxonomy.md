@@ -1,17 +1,24 @@
 ```yaml
-Controller:MetaOrch[]
-  Cluster_type:
-  Cluster_name:
-  Location_zone:
+Controller:Controller[]
+  Type:
+  Name:
+  Location:
+    Name:
+    Continent:
+    Country:
+    City:
+    GPS_latitude:
+    GPS_longitude:
   ServiceLevelAgreement: <not sure if state SLA here or at Agent level>
   API:
     ICOS_version:
   Any[]:
 
 Agent:Cluster[]
-  Cluster_type:
-  Cluster_name:
-  Location_zone:
+  Type:
+  Name:
+  Location:
+    ...
   ServiceLevelAgreement: <not sure if state SLA here or at Agent level>
   API:
   Node[]
@@ -24,12 +31,16 @@ Agent:Cluster[]
       GPU_clock_speed:
       GPU_memory:
       RAM:
-      Storage:
-      .....
+      Storage[]
+        Name:
+        Type:
+        Capacity:
     Dinamyc_metrics:
-      CPU_usage:
+      CPUFrecuency:
       RAM_usage:
-      Storage_free:
+      Storage[]
+        Name:
+        Free:
       Uptime:
       CPU_temperature:
       GPU_temperature:
@@ -51,11 +62,7 @@ Agent:Cluster[]
       Interface_ingress_usage:
       Interface_egress_usage:
   Location:
-    Continent:
-    Country:
-    City:
-    GPS_latitude:
-    GPS_longitude:
+    ...
   Security / Trust:
   Deployment:
     Status: <Desired state/Actual state>
