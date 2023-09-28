@@ -76,5 +76,5 @@ type API struct {
 }
 
 type ServiceLevelAgreement struct { //TODO: complete
-	Name string
+	Name string `json:"name,omitempty"`
 }
