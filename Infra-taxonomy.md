@@ -1,0 +1,92 @@
+```yaml
+Controller:MetaOrch[]
+  Cluster_type:
+  Cluster_name:
+  Location_zone:
+  ServiceLevelAgreement: <not sure if state SLA here or at Agent level>
+  API:
+    ICOS_version:
+  Any[]:
+
+Agent:Cluster[]
+  Cluster_type:
+  Cluster_name:
+  Location_zone:
+  ServiceLevelAgreement: <not sure if state SLA here or at Agent level>
+  API:
+  Node[]
+    Node_name:
+    Node_type:
+    Static_metrics:
+      CPU_cores:
+      CPU_clock_speed:
+      GPU_cores:
+      GPU_clock_speed:
+      GPU_memory:
+      RAM:
+      Storage:
+      .....
+    Dinamyc_metrics:
+      CPU_usage:
+      RAM_usage:
+      Storage_free:
+      Uptime:
+      CPU_temperature:
+      GPU_temperature:
+      CPU_energy_consumption:
+      GPU_energy_consumption:
+      Network_usage:
+      ....
+  Network:
+    Connectivity_type:
+    Latency:
+    IP_address:
+    IP_gateway:
+    Interfaces[]
+      Interface_name:
+      Interface_type:
+      Interface_speed:
+      Interface_IP:
+      Interface_subnet_mask:
+      Interface_ingress_usage:
+      Interface_egress_usage:
+  Location:
+    Continent:
+    Country:
+    City:
+    GPS_latitude:
+    GPS_longitude:
+  Security / Trust:
+  Deployment:
+    Status: <Desired state/Actual state>
+    Number of containers:
+    Number of apps:
+    Containers[]
+      Container_name:
+      Container_ports[]
+        Port:
+      Container_memory_usage:
+      Container_cpu_usage:
+      Container_IP:  
+  IoT []
+    IoT_type[]: <i.e. Video_camera or Display or Temperature>
+    Status:
+    Any[]:
+      Resolution:
+      EngUnits:
+      MinScale:
+      MaxScale:
+      TouchScreen:
+      ....
+    Network:
+      ResponseType:
+      Latency:
+      Bandwidth: 
+    API:
+      Communication_protocol:
+      Any[]:
+        Protocol_version:
+        Data_format:
+        Authentication:
+        Authorization:
+```

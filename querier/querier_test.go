@@ -1,4 +1,4 @@
-package aggregator
+package querier
 
 import (
 	"os"
@@ -6,9 +6,15 @@ import (
 )
 
 func TestQuery(t *testing.T) {
-	os.Setenv("PROMETHEUS_ADDRESS", "http://localhost:10902")
+	os.Setenv("PROMETHEUS_ADDRESS", "http://localhost:10902") // thanos-query
+
+	q := PromQLQuery{
+		Metric: "up",
+		Params: map[string]string{}}
+
 	want := float64(1)
-	if got := Query(`up{container="prometheus"}`); got != want {
+
+	if got := Query(q.String()); got != want {
 		t.Errorf("Query() = %v, want %v", got, want)
 	}
 }
