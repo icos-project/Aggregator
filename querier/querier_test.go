@@ -6,10 +6,10 @@ import (
 )
 
 func TestQuery(t *testing.T) {
-	os.Setenv("PROMETHEUS_ADDRESS", "http://localhost:10902") // thanos-query
+	os.Setenv("PROMETHEUS_ADDRESS", "http://query.192.168.137.175.nip.io/") // thanos-query
 
 	q := PromQLQuery{
-		Metric: "up",
+		Metric: "up{container='prometheus'}",
 		Params: map[string]string{}}
 
 	want := float64(1)

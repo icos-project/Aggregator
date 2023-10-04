@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -34,7 +33,7 @@ func (q PromQLQuery) String() string {
 
 }
 
-func Query(query string) float64 { // TODO: return models.Vector
+func Query(query string) model.Vector { // TODO: return models.Vector
 
 	// create prometheus API client
 	client, err := api.NewClient(api.Config{
@@ -55,19 +54,17 @@ func Query(query string) float64 { // TODO: return models.Vector
 	if len(warnings) > 0 {
 		fmt.Printf("Warnings: %v\n", warnings)
 	}
+
 	// match the response to vector and print the response values
 	switch r := result.(type) {
 	case model.Vector:
 
-		if r.Len() != 1 {
+		if r.Len() == 0 {
 			panic(errors.New("unexpected result length"))
 		}
-		v, err := strconv.ParseFloat(r[0].Value.String(), 64)
-		if err != nil {
-			panic(err)
-		}
 
-		return v
+		return r
+
 	default:
 		panic(errors.New("not implemented"))
 	}

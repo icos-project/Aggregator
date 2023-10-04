@@ -19,7 +19,7 @@ type Cluster struct {
 	Location              Location              `json:"location,omitempty"`
 	ServiceLevelAgreement ServiceLevelAgreement `json:"serviceLevelAgreement,omitempty"`
 	API                   API                   `json:"API,omitempty"`
-	Node                  Node                  `json:"node,omitempty"`
+	Node                  []Node                `json:"node,omitempty"`
 	Any                   any                   `json:"any,omitempty"`
 }
 
@@ -77,4 +77,20 @@ type API struct {
 
 type ServiceLevelAgreement struct { //TODO: complete
 	Name string `json:"name,omitempty"`
+}
+
+type ClusterTest struct {
+	Type string              `json:"type,omitempty"`
+	Name string              `json:"name,omitempty"`
+	Node map[string]NodeTest `json:"node,omitempty"`
+}
+
+type NodeTest struct {
+	Type              string            `json:"type,omitempty"`
+	Name              string            `json:"name,omitempty"`
+	StaticMetricsTest StaticMetricsTest `json:"staticMetrics,omitempty"`
+}
+
+type StaticMetricsTest struct {
+	CPUCores float64 `json:"cpuCores,omitempty"`
 }
