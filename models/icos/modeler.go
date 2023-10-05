@@ -1,11 +1,13 @@
 package models
 
 import (
+	"encoding/json"
+	"fmt"
 	"icos/server/querier"
 	"os"
 )
 
-func TransformQuery() {
+func TransformQuery() []byte {
 
 	os.Setenv("PROMETHEUS_ADDRESS", "http://query.192.168.137.175.nip.io/") // thanos-query
 
@@ -58,4 +60,11 @@ func TransformQuery() {
 
 	}
 
+	// Convert to JSON
+	json, err := json.Marshal(clusters)
+	if err != nil {
+		fmt.Printf("Error marshaling models: %v\n", err)
+	}
+
+	return json
 }

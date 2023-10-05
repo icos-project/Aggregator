@@ -1,11 +1,9 @@
 package main
 
-import (
-	models "icos/server/models/icos"
-)
+import "icos/server/server"
 
 func main() {
 
-	models.TransformQuery()
+	server.CreateServer()
 
 }
