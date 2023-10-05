@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"icos/server/querier"
 	"os"
 )
@@ -58,13 +57,5 @@ func TransformQuery() {
 		}
 
 	}
-
-	fmt.Println(clusters["10.42.0.63:8080"].Type)
-	fmt.Println(clusters["10.42.0.63:8080"].Name)
-	fmt.Println(clusters["10.42.0.63:8080"].Location)
-	fmt.Println(clusters["10.42.0.63:8080"].ServiceLevelAgreement)
-	fmt.Println(clusters["10.42.0.63:8080"].API)
-	fmt.Println(clusters["10.42.0.63:8080"].Node)
-	fmt.Println(clusters["10.42.0.63:8080"].Any)
 
 }
