@@ -6,15 +6,18 @@ import (
 )
 
 func TestQuery(t *testing.T) {
+
 	os.Setenv("PROMETHEUS_ADDRESS", "http://query.192.168.137.175.nip.io/") // thanos-query
 
 	q := PromQLQuery{
-		Metric: "up{container='prometheus'}",
+		Metric: "vector(100)",
 		Params: map[string]string{}}
 
-	want := float64(1)
+	want := []string{"{}", "100"}
+	queryResult := Query(q.String())
+	got := []string{queryResult[0].Metric.String(), queryResult[0].Value.String()}
 
-	if got := Query(q.String()); got != want {
+	if got[0] != want[0] || got[1] != want[1] {
 		t.Errorf("Query() = %v, want %v", got, want)
 	}
 }

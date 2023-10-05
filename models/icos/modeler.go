@@ -15,7 +15,7 @@ func TransformQuery() {
 		Params: map[string]string{}}
 
 	// Create clusters and nodes
-	var clusters = map[string]ClusterTest{}
+	var clusters = map[string]Cluster{}
 
 	for _, pod := range querier.Query(q.String()) {
 
@@ -26,22 +26,22 @@ func TransformQuery() {
 		// Same instances means nodes are in the same cluster
 		// New instances are new clusters
 		if _, exists := clusters[ins]; !exists {
-			var newCluster = ClusterTest{
+			var newCluster = Cluster{
 				Name: ins,
-				Node: map[string]NodeTest{},
+				Node: map[string]Node{},
 			}
 			clusters[ins] = newCluster
 		}
 
 		// Create new node
-		newNode := NodeTest{
-			Name:              node,
-			StaticMetricsTest: StaticMetricsTest{},
+		newNode := Node{
+			Name:          node,
+			StaticMetrics: StaticMetrics{},
 		}
 		clusters[ins].Node[node] = newNode
 	}
 
-	// Add Node Stats
+	// Add node stats
 	q = querier.PromQLQuery{
 		Metric: "machine_cpu_cores{service='prom-kube-prometheus-kubelet'}",
 		Params: map[string]string{}}
@@ -52,13 +52,19 @@ func TransformQuery() {
 
 		for cluster, _ := range clusters {
 			if n, exists := clusters[cluster].Node[nodeName]; exists {
-				n.StaticMetricsTest.CPUCores = float64(node.Value)
+				n.StaticMetrics.CPUCores = float64(node.Value)
 				clusters[cluster].Node[nodeName] = n
 			}
 		}
 
 	}
 
-	fmt.Println(clusters)
+	fmt.Println(clusters["10.42.0.63:8080"].Type)
+	fmt.Println(clusters["10.42.0.63:8080"].Name)
+	fmt.Println(clusters["10.42.0.63:8080"].Location)
+	fmt.Println(clusters["10.42.0.63:8080"].ServiceLevelAgreement)
+	fmt.Println(clusters["10.42.0.63:8080"].API)
+	fmt.Println(clusters["10.42.0.63:8080"].Node)
+	fmt.Println(clusters["10.42.0.63:8080"].Any)
 
 }
