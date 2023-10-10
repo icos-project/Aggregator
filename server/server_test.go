@@ -4,21 +4,56 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 )
 
 func TestHTTPRequest(t *testing.T) {
 
-	want := []byte(`{
-				"Cluster_type": "1",
-				"Cluster_name": "B",
-				"Location_zone": "Madrid",
-				"ServiceLevelAgreement": "C",
-				"API": "D",
-				"Node": [{"Node_name": "alpa", "Node_type": "1"}, 
-						{"Node_name": "beta", "Node_type": "2"}]
-				}`)
+	w := []byte(`
+	{"10.42.0.63:8080":{
+		"name":"10.42.0.63:8080",
+		"location":{},
+		"serviceLevelAgreement":{},
+		"API":{},
+		"node":{
+			"ocm-worker1.bull1.ari-imet.eu":{
+				"name":"ocm-worker1.bull1.ari-imet.eu",
+				"staticMetrics":{
+					"cpuCores":4
+				},
+				"dynamicMetrics":{}
+			}
+		}
+	},"
+	10.42.1.7:8080":{
+		"name":"10.42.1.7:8080",
+		"location":{},
+		"serviceLevelAgreement":{},
+		"API":{},
+		"node":{
+			"k3s-node1":{
+				"name":"k3s-node1",
+				"staticMetrics":{
+					"cpuCores":4
+				},
+				"dynamicMetrics":{}
+			},"
+			k3s-node2":{
+				"name":"k3s-node2",
+				"staticMetrics":{
+					"cpuCores":4
+				},
+				"dynamicMetrics":{}
+			}
+		}
+	}
+	}`)
+	w1 := []byte(strings.ReplaceAll(string(w), "\t", ""))
+	w2 := []byte(strings.ReplaceAll(string(w1), "\n", ""))
+	want := []byte(strings.ReplaceAll(string(w2), " ", ""))
+
 
 	go CreateServer()
 	time.Sleep(time.Second) // Wait for server to start up

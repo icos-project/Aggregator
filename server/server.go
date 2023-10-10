@@ -3,6 +3,8 @@ package server
 import (
 	"errors"
 	"fmt"
+	models "icos/server/models/icos"
+
 	"net/http"
 	"os"
 )
@@ -27,16 +29,10 @@ func CreateServer() {
 
 func serveQuery(w http.ResponseWriter, r *http.Request) {
 
-	// Data received from models.go
-	querierData := []byte(`{
-				"Cluster_type": "1",
-				"Cluster_name": "B",
-				"Location_zone": "Madrid",
-				"ServiceLevelAgreement": "C",
-				"API": "D",
-				"Node": [{"Node_name": "alpa", "Node_type": "1"}, 
-						{"Node_name": "beta", "Node_type": "2"}]
-				}`)
+	// Get data in JSON format
+	querierData := models.TransformQuery()
+
+	// Server response
 
 	w.Write(querierData)
 }
