@@ -28,8 +28,9 @@ func TransformQuery() []byte {
 		// New instances are new clusters
 		if _, exists := clusters[ins]; !exists {
 			var newCluster = Cluster{
-				Name: ins,
-				Node: map[string]Node{},
+				Name:       ins,
+				Node:       map[string]Node{},
+				Deployment: map[string]Deployment{},
 			}
 			clusters[ins] = newCluster
 		}
@@ -42,7 +43,7 @@ func TransformQuery() []byte {
 		clusters[ins].Node[node] = newNode
 	}
 
-	// Add node stats
+	// Add node stats			TODO: COMPLETE
 	q = querier.PromQLQuery{
 		Metric: "machine_cpu_cores{service='prom-kube-prometheus-kubelet'}",
 		Params: map[string]string{}}
@@ -60,8 +61,32 @@ func TransformQuery() []byte {
 
 	}
 
+	// Add deployment		TODO: Is it correct?
+	q = querier.PromQLQuery{
+		Metric: "kube_pod_container_info",
+		Params: map[string]string{}}
+
+	for _, container := range querier.Query(q.String()) {
+
+		cluster := string(container.Metric["instance"])
+		dep := string(container.Metric["container"])
+		con := string(container.Metric["pod"])
+
+		if _, exists := clusters[cluster].Deployment[dep]; !exists {
+			newDeployment := Deployment{
+				Container: map[string]Container{},
+			}
+			clusters[cluster].Deployment[dep] = newDeployment
+		}
+
+		newContainer := Container{
+			Name: con,
+		}
+		clusters[cluster].Deployment[dep].Container[con] = newContainer
+	}
+
 	// Convert to JSON
-	json, err := json.Marshal(clusters)
+	json, err := json.MarshalIndent(clusters, "", "\t")
 	if err != nil {
 		fmt.Printf("Error marshaling models: %v\n", err)
 	}

@@ -20,7 +20,28 @@ type Cluster struct {
 	ServiceLevelAgreement ServiceLevelAgreement `json:"serviceLevelAgreement,omitempty"`
 	API                   API                   `json:"API,omitempty"`
 	Node                  map[string]Node       `json:"node,omitempty"`
+	Deployment            map[string]Deployment `json:"deployment,omitempty"`
 	Any                   any                   `json:"any,omitempty"`
+}
+
+type Deployment struct {
+	Status             string               `json:"status,omitempty"`
+	NumberOfContainers float64              `json:"numberOfContainers,omitempty"`
+	NumberOfApps       float64              `json:"numberOfApps,omitempty"`
+	Container          map[string]Container `json:"container,omitempty"`
+}
+
+type Container struct {
+	Name            string `json:"name,omitempty"`
+	Node            string `json:"node,omitempty"`
+	Port            []Port `json:"port,omitempty"`
+	ContainerMemory string `json:"containerMemory,omitempty"`
+	CPUUsage        string `json:"cpuUsage,omitempty"`
+	IP              string `json:"ip,omitempty"`
+}
+
+type Port struct {
+	Port string `json:"port,omitempty"`
 }
 
 type Location struct {
