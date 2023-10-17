@@ -43,7 +43,7 @@ func TransformQuery() []byte {
 		clusters[ins].Node[node] = newNode
 	}
 
-	// Add node stats			TODO: COMPLETE
+	// Add node stats
 	q = querier.PromQLQuery{
 		Metric: "machine_cpu_cores{service='prom-kube-prometheus-kubelet'}",
 		Params: map[string]string{}}
@@ -61,7 +61,7 @@ func TransformQuery() []byte {
 
 	}
 
-	// Add deployment		TODO: Is it correct?
+	// Add deployment
 	q = querier.PromQLQuery{
 		Metric: "kube_pod_container_info",
 		Params: map[string]string{}}
