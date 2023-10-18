@@ -33,6 +33,5 @@ func serveQuery(w http.ResponseWriter, r *http.Request) {
 	querierData := models.TransformQuery()
 
 	// Server response
-
 	w.Write(querierData)
 }

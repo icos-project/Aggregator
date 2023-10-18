@@ -4,18 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"icos/server/querier"
-	"os"
 )
 
 func TransformQuery() []byte {
 
-	os.Setenv("PROMETHEUS_ADDRESS", "http://query.192.168.137.175.nip.io/") // thanos-query
-
+	// Create clusters and nodes
 	q := querier.PromQLQuery{
 		Metric: "kube_pod_info{created_by_name='prom-node-exporter'}",
 		Params: map[string]string{}}
 
-	// Create clusters and nodes
 	var clusters = map[string]Cluster{}
 
 	for _, pod := range querier.Query(q.String()) {
