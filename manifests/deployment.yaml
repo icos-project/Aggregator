@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aggregator
+  labels:
+    app: aggregator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aggregator
+  template:
+    metadata:
+      labels:
+        app: aggregator
+    spec:
+      containers:
+      - name: aggregator
+        image: registry.atosresearch.eu:18484/icos-monitoring-aggregator:develop
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+      - name: nexus-credentials
