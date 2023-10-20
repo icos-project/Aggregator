@@ -8,3 +8,5 @@ include:
 
 build_docker:
   extends: .build_with_kaniko
+  variables:
+    PH_KANIKO_OPTS: --cache-copy-layers=false
