@@ -1,0 +1,10 @@
+include:
+  - project: 'resengit/gitlab/pipeline-helpers'
+    ref: main
+    file: '/common.yaml'
+  - project: 'resengit/gitlab/pipeline-helpers'
+    ref: main
+    file: '/jobs/docker.yaml'
+
+build_docker:
+  extends: .build_with_kaniko
