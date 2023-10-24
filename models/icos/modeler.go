@@ -48,7 +48,7 @@ func TransformQuery() []byte {
 
 		nodeName := string(node.Metric["node"])
 
-		for cluster, _ := range clusters {
+		for cluster := range clusters {
 			if n, exists := clusters[cluster].Node[nodeName]; exists {
 				n.StaticMetrics.CPUCores = float64(node.Value)
 				clusters[cluster].Node[nodeName] = n

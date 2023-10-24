@@ -5,6 +5,7 @@ import (
 	"fmt"
 	models "icos/server/models/icos"
 
+	mid "icos/server/middlewares"
 	"net/http"
 	"os"
 )
@@ -12,7 +13,7 @@ import (
 func CreateServer() {
 
 	// Open server
-	http.HandleFunc("/", serveQuery)
+	http.HandleFunc("/", mid.SetMiddlewareLog(mid.SetMiddlewareJSON(mid.JWTValidation(serveQuery))))
 
 	fmt.Println("server listening on :8080")
 
