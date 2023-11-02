@@ -24,7 +24,7 @@ docker build . -t icos-aggregator
 
 Launching the aggregator:
 ```bash
-docker run -p 8080:8080 -e PROMETHEUS_ADDRESS=http://query.192.168.137.175.nip.io/ icos-aggregator
+docker run -p 8080:8080 -e PROMETHEUS_ADDRESS=http://thanos.192.168.137.200.nip.io/ icos-aggregator
 ```
 
 Connecting to the aggregator:
