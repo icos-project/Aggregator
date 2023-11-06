@@ -1,4 +1,4 @@
 include:
   - project: 'resengit/gitlab/pipeline-helpers'
-    ref: sonarqube
+    ref: main
     file: '/pipelines/docker-image.yaml'
