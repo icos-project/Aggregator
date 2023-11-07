@@ -1,4 +1,4 @@
 include:
   - project: 'resengit/gitlab/pipeline-helpers'
-    ref: main
+    ref: trivy-test
     file: '/pipelines/docker-image.yaml'
