@@ -103,17 +103,11 @@ func queryThanos() map[string]Cluster {
 
 	// Pod - Number of containers
 	for cluster_id := range clusters {
-		fmt.Println("Cluster: ", cluster_id)
-		fmt.Println("Num of pods:", len(clusters[cluster_id].Pod))
-		var i int32 = 0
 		for pod_id := range clusters[cluster_id].Pod {
 			pod := clusters[cluster_id].Pod[pod_id]
 			pod.NumberOfContainers = int32(len(pod.Container))
 			clusters[cluster_id].Pod[pod_id] = pod
-			i = i + pod.NumberOfContainers
 		}
-		fmt.Println("Num of containers:", i)
-		fmt.Println()
 	}
 
 	// Container - CPU Usage
