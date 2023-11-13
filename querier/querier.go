@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -33,8 +32,7 @@ func (q PromQLQuery) String() string {
 
 }
 
-func Query(query string) model.Vector { // TODO: return models.Vector
-
+func Query(query string) model.Vector {
 
 	// create prometheus API client
 	client, err := api.NewClient(api.Config{
@@ -66,12 +64,7 @@ func Query(query string) model.Vector { // TODO: return models.Vector
 
 		return r
 
-
 	default:
 		panic(errors.New("not implemented"))
 	}
-}
-
-func ServeQuery(w http.ResponseWriter, r *http.Request) {
-	Query(`up{container="prometheus"}`) // TODO: pass query string from API call
 }

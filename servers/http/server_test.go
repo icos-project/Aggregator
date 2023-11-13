@@ -1,4 +1,4 @@
-package server
+package server_icos
 
 import (
 	"bytes"
@@ -54,8 +54,7 @@ func TestHTTPRequest(t *testing.T) {
 	w2 := []byte(strings.ReplaceAll(string(w1), "\n", ""))
 	want := []byte(strings.ReplaceAll(string(w2), " ", ""))
 
-
-	go CreateServer()
+	go CreateServer("icos")
 	time.Sleep(time.Second) // Wait for server to start up
 
 	c := &http.Client{

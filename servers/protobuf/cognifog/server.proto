@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+option go_package = "servers/protobuf/cognifog/";
+
+package server_proto;
+
+
+service Aggregator {
+  rpc ConnectToQuerier (Empty) returns (InfrastructureModel);
+}
+
+message Empty {}
+
+message InfrastructureModel {
+
+  message Node {
+    enum NodeType {
+      COMPUTE = 0; // default value if not set
+      NETWORK = 1;
+    }
+
+    string id = 1;
+    // Can be compute node or network node.
+    NodeType node_type = 2;
+
+    // These are the total resources in the node.
+    // The resource fields are empty for Network nodes.
+    //ComputeResources resources = 3;
+
+    // These are the resources on the node that are available to allocate.
+    //ComputeResources available_resources = 4;
+
+    // Nodes can be labelled to indicate capabilities, architecture,
+    // maybe the security zone.
+    repeated string labels = 5;
+  }
+
+  repeated Node nodes = 1;
+}

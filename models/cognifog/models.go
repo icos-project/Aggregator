@@ -1,4 +1,4 @@
-package models_icos
+package models_cognifog
 
 type Controllers []*Controller
 

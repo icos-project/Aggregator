@@ -1,9 +1,15 @@
 package main
 
-import "icos/server/server"
+import (
+	//http "icos/server/servers/http"
+	protobuf "icos/server/servers/protobuf"
+)
 
 func main() {
 
-	server.CreateServer()
+	// HTTP server
+	//http.CreateServer("icos")
 
+	//gRPC server
+	protobuf.CreateServer("cognifog")
 }
