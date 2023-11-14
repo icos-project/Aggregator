@@ -5,11 +5,22 @@ option go_package = "servers/protobuf/cognifog/";
 package server_proto;
 
 
-service Aggregator {
+service Aggregator  {
   rpc ConnectToQuerier (Empty) returns (InfrastructureModel);
 }
 
 message Empty {}
+
+message ComputeResources {
+  // compute capacity in milliCPU, matches what Kubernetes uses.
+  int32 milliCPU = 1; 
+
+  // RAM in Bytes, matches what Kubernetes uses internally.
+  int64 memoryInBytes = 2;
+
+  // Other resource types (GPU, real-time CPU, storage) can be
+  // added here.
+}
 
 message InfrastructureModel {
 
@@ -25,10 +36,10 @@ message InfrastructureModel {
 
     // These are the total resources in the node.
     // The resource fields are empty for Network nodes.
-    //ComputeResources resources = 3;
+    ComputeResources resources = 3;
 
     // These are the resources on the node that are available to allocate.
-    //ComputeResources available_resources = 4;
+    ComputeResources available_resources = 4;
 
     // Nodes can be labelled to indicate capabilities, architecture,
     // maybe the security zone.
