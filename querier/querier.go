@@ -33,8 +33,7 @@ func (q PromQLQuery) String() string {
 
 }
 
-func Query(query string) model.Vector { // TODO: return models.Vector
-
+func Query(query string) model.Vector {
 
 	// create prometheus API client
 	client, err := api.NewClient(api.Config{
@@ -65,7 +64,6 @@ func Query(query string) model.Vector { // TODO: return models.Vector
 		}
 
 		return r
-
 
 	default:
 		panic(errors.New("not implemented"))

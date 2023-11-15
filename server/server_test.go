@@ -54,7 +54,6 @@ func TestHTTPRequest(t *testing.T) {
 	w2 := []byte(strings.ReplaceAll(string(w1), "\n", ""))
 	want := []byte(strings.ReplaceAll(string(w2), " ", ""))
 
-
 	go CreateServer()
 	time.Sleep(time.Second) // Wait for server to start up
 

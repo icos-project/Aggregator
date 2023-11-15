@@ -7,7 +7,7 @@ import (
 
 func TestQuery(t *testing.T) {
 
-	os.Setenv("PROMETHEUS_ADDRESS", "http://thanos.192.168.137.200.nip.io/") // thanos-query
+	os.Setenv("PROMETHEUS_ADDRESS", "http://query.192.168.137.175.nip.io/") // thanos-query
 
 	q := PromQLQuery{
 		Metric: "vector(100)",
@@ -18,7 +18,6 @@ func TestQuery(t *testing.T) {
 	got := []string{queryResult[0].Metric.String(), queryResult[0].Value.String()}
 
 	if got[0] != want[0] || got[1] != want[1] {
-
 		t.Errorf("Query() = %v, want %v", got, want)
 	}
 }

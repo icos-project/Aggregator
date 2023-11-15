@@ -31,7 +31,7 @@ func CreateServer() {
 func serveQuery(w http.ResponseWriter, r *http.Request) {
 
 	// Get data in JSON format
-	querierData := models.TransformQuery()
+	querierData := models.GetInfra()
 
 	// Server response
 	w.Write(querierData)
