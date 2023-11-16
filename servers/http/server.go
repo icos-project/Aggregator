@@ -8,13 +8,16 @@ import (
 
 	mid "icos/server/middlewares"
 	m_icos "icos/server/models/icos"
+	responses "icos/server/responses"
 )
 
 func CreateServer(project string) {
 
-	// Open server
+	// Routes
 	http.HandleFunc("/", mid.SetMiddlewareLog(mid.SetMiddlewareJSON(mid.JWTValidation(connectToQuerier(project)))))
+	http.HandleFunc("/healthz", healthCheck)
 
+	// Open server
 	port := getenv("AGGREGATOR_PORT", "8080")
 	fmt.Printf("server listening on :%s", port)
 	err := http.ListenAndServe((":" + port), nil)
@@ -47,6 +50,10 @@ func connectToQuerier(project string) http.HandlerFunc {
 		w.Write(querierData)
 
 	}
+}
+
+func healthCheck(w http.ResponseWriter, r *http.Request) {
+	responses.JSON(w, http.StatusOK, "Aggregator working properly!")
 }
 
 func getenv(key, fallback string) string {
