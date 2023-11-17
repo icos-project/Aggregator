@@ -18,7 +18,6 @@ func TestQuery(t *testing.T) {
 	got := []string{queryResult[0].Metric.String(), queryResult[0].Value.String()}
 
 	if got[0] != want[0] || got[1] != want[1] {
-
 		t.Errorf("Query() = %v, want %v", got, want)
 	}
 }

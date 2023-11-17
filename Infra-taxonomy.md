@@ -19,7 +19,6 @@ Agent:Cluster[]
   Name:
   Location:
     ...
-
   ServiceLevelAgreement: <not sure if state SLA here or at Agent level>
   API:
   Node[]
@@ -42,7 +41,6 @@ Agent:Cluster[]
       Storage[]
         Name:
         Free:
-
       Uptime:
       CPU_temperature:
       GPU_temperature:
@@ -65,7 +63,6 @@ Agent:Cluster[]
       Interface_egress_usage:
   Location:
     ...
-
   Security / Trust:
   Deployment:
     Status: <Desired state/Actual state>

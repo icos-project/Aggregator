@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -59,7 +60,7 @@ func Query(query string) model.Vector {
 	case model.Vector:
 
 		if r.Len() == 0 {
-			panic(errors.New("unexpected result length"))
+			fmt.Println("PromQL Query Result length is zero")
 		}
 
 		return r
@@ -67,4 +68,8 @@ func Query(query string) model.Vector {
 	default:
 		panic(errors.New("not implemented"))
 	}
+}
+
+func ServeQuery(w http.ResponseWriter, r *http.Request) {
+	Query(`up{container="prometheus"}`) // TODO: pass query string from API call
 }

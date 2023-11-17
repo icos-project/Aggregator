@@ -25,19 +25,20 @@ type Cluster struct {
 }
 
 type Pod struct {
+	Name               string               `json:"name,omitempty"`
 	Status             string               `json:"status,omitempty"`
-	NumberOfContainers float64              `json:"numberOfContainers,omitempty"`
-	NumberOfApps       float64              `json:"numberOfApps,omitempty"`
+	NumberOfContainers int32                `json:"numberOfContainers,omitempty"`
+	NumberOfApps       int32                `json:"numberOfApps,omitempty"`
 	Container          map[string]Container `json:"container,omitempty"`
 }
 
 type Container struct {
-	Name            string `json:"name,omitempty"`
-	Node            string `json:"node,omitempty"`
-	Port            []Port `json:"port,omitempty"`
-	ContainerMemory string `json:"containerMemory,omitempty"`
-	CPUUsage        string `json:"cpuUsage,omitempty"`
-	IP              string `json:"ip,omitempty"`
+	Name            string  `json:"name,omitempty"`
+	Node            string  `json:"node,omitempty"`
+	Port            []Port  `json:"port,omitempty"`
+	ContainerMemory string  `json:"containerMemory,omitempty"`
+	CPUUsage        float64 `json:"cpuUsage,omitempty"`
+	IP              string  `json:"ip,omitempty"`
 }
 
 type Port struct {
