@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"sync"
 
 	md "icos/server/models/cognifog"
 	pb "icos/server/servers/protobuf/cognifog"
@@ -22,15 +23,17 @@ func (s *server_cognifog) ConnectToQuerier(ctx context.Context, in *pb.Empty) (*
 	return md.GetInfra(), nil
 }
 
-func CreateServer(project string) {
+func CreateServer(wg *sync.WaitGroup, project string, port string) {
 
-	port, err := strconv.Atoi(getenv("AGGREGATOR_PORT", "8080"))
+	defer wg.Done()
+
+	p, err := strconv.Atoi(port)
 
 	if err != nil {
 		log.Fatalf("Invalid port: %v", err)
 	}
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", p))
 
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -52,12 +55,4 @@ func CreateServer(project string) {
 		log.Fatalf("failed to serve: %v", err)
 	}
 
-}
-
-func getenv(key, fallback string) string {
-	value := os.Getenv(key)
-	if len(value) == 0 {
-		return fallback
-	}
-	return value
 }

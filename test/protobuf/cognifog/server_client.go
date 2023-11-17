@@ -14,7 +14,7 @@ import (
 
 func main() {
 
-	addr := "localhost:" + getenv("AGGREGATOR_PORT", "8080") // AGGREGATOR_PORT is defined in other instance so here is currently empty
+	addr := "localhost:" + getenv("GRPC_PORT", "8181") // GRPC_PORT is defined in other instance so here is currently empty
 
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -25,7 +25,7 @@ func main() {
 	c := pb.NewAggregatorClient(conn)
 
 	// Contact the server and print out its response.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	r, err := c.ConnectToQuerier(ctx, &pb.Empty{})
 	if err != nil {

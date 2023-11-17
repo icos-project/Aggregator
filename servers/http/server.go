@@ -3,24 +3,32 @@ package server_icos
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"sync"
 
 	mid "icos/server/middlewares"
 	m_icos "icos/server/models/icos"
 	responses "icos/server/responses"
 )
 
-func CreateServer(project string) {
+func CreateServer(wg *sync.WaitGroup, project string, port string) {
+
+	defer wg.Done()
 
 	// Routes
 	http.HandleFunc("/", mid.SetMiddlewareLog(mid.SetMiddlewareJSON(mid.JWTValidation(connectToQuerier(project)))))
 	http.HandleFunc("/healthz", healthCheck)
 
-	// Open server
-	port := getenv("AGGREGATOR_PORT", "8080")
-	fmt.Printf("server listening on :%s", port)
-	err := http.ListenAndServe((":" + port), nil)
+	_, err := strconv.Atoi(port)
+	if err != nil {
+		log.Fatalf("Invalid port: %v", err)
+	}
+
+	fmt.Printf("server listening on :%s\n", port)
+	err = http.ListenAndServe((":" + port), nil)
 
 	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Printf("server closed\n")
@@ -54,12 +62,4 @@ func connectToQuerier(project string) http.HandlerFunc {
 
 func healthCheck(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, "Aggregator working properly!")
-}
-
-func getenv(key, fallback string) string {
-	value := os.Getenv(key)
-	if len(value) == 0 {
-		return fallback
-	}
-	return value
 }

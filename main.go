@@ -1,15 +1,40 @@
 package main
 
 import (
+	"fmt"
 	http "icos/server/servers/http"
-	//protobuf "icos/server/servers/protobuf"
+	protobuf "icos/server/servers/protobuf"
+	"os"
+	"sync"
 )
 
 func main() {
 
-	// HTTP server
-	http.CreateServer("icos")
+	// Get ports
+	http_port := os.Getenv("HTTP_PORT")
+	grpc_port := os.Getenv("GRPC_PORT")
 
-	//gRPC server
-	//protobuf.CreateServer("cognifog")
+	var wg sync.WaitGroup
+
+	// Default: HTTP server in port 8080
+	if http_port == "" && grpc_port == "" {
+		http_port = "8080"
+	}
+
+	// Launch HTTP server
+	if http_port != "" {
+		fmt.Println("Starting HTTP server...")
+		wg.Add(1)
+		go http.CreateServer(&wg, "icos", http_port)
+	}
+
+	// Launch gRPC server
+	if grpc_port != "" {
+		fmt.Println("Starting gRPC server...")
+		wg.Add(1)
+		go protobuf.CreateServer(&wg, "cognifog", grpc_port)
+	}
+
+	wg.Wait()
+
 }

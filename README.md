@@ -6,7 +6,7 @@ Aggregator service provides a simple way to query information about a multi-clus
 
 ## Modules
 ### Server
-Depending on the project, an HTTP or gRPC server is launched. It listens on the port AGGREGATOR_PORT passed as enviroment variable (default :8080) and calls the models module every time a client request is received. "AGGREGATOR_PORT" and "docker run --publish <port>" must be the same.
+Two different servers are implemented: HTTP and gRPC. They listen on the provided port passed as enviroment variable and call the models module every time a client request is received. It is possible to choose among any of them to be launched or to start both at the same time.
 
 ### Models
 Data taxonomy is defined in *models.go* as Golang structs. 
@@ -17,22 +17,33 @@ Creates Prometheus API client and sends a query to Thanos. It retrieves the metr
 
 
 ## Execution
-Building the aggregator:
+
+#### Building the aggregator:
 ```bash
 docker build . -t icos-aggregator
 ```
+  
+#### Launching the aggregator:
 
-Launching the aggregator:
+- PROMETHEUS_ADDRESS: The address where Prometheus/Thanos is located.  
+- HTTP_PORT: If set, HTTP server is launched at port HTTP_PORT.  
+- GRPC_PORT: If set, gRPC server is launched at port GRPC_PORT.
+
+If no port is provided, aggregator launches an HTTP server at port 8080 by default.
+
 ```bash
-docker run -p 8080:8080 -e PROMETHEUS_ADDRESS=http://thanos.192.168.137.200.nip.io/ -e AGGREGATOR_PORT=8080 icos-aggregator
+docker run -p 8080:8080 -p 8181:8181 -e PROMETHEUS_ADDRESS=http://thanos.192.168.137.200.nip.io/ -e HTTP_PORT=8080 -e GRPC_PORT=8181 icos-aggregator
 ```
+(Note: HTTP_PORT/GRPC_PORT must be published with the option -p to be able to run the container correctly)
 
-Connecting to the aggregator with HTTP server:
+
+#### Connecting to the aggregator with HTTP server:
 ```bash
 curl localhost:8080
 ```
   
-Connecting to the aggregator with gRPC server (via Cognifog client test file):
+  
+#### Connecting to the aggregator with gRPC server (via Cognifog client test file):
 ```bash
-export AGGREGATOR_PORT=8080 && go run test/protobuf/cognifog/server_client.go 
+export GRPC_PORT=8181 && go run test/protobuf/cognifog/server_client.go 
 ```
