@@ -28,6 +28,7 @@ docker build . -t icos-aggregator
 - PROMETHEUS_ADDRESS: The address where Prometheus/Thanos is located.  
 - HTTP_PORT: If set, HTTP server is launched at port HTTP_PORT.  
 - GRPC_PORT: If set, gRPC server is launched at port GRPC_PORT.
+- KEY: If set, Keycloak is enabled and public key set as KEY.
 
 If no port is provided, aggregator launches an HTTP server at port 8080 by default.
 
@@ -36,6 +37,10 @@ docker run -p 8080:8080 -p 8181:8181 -e PROMETHEUS_ADDRESS=http://thanos.192.168
 ```
 (Note: HTTP_PORT/GRPC_PORT must be published with the option -p to be able to run the container correctly)
 
+Current Key:
+```bash
+KEY=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgTGF4mKVEa+eWX0S/+EWIfkkqbLba5WuQ1KKGRQz+P56Y0WNRbgjNl0CObndffmixbpgp4kg5jKq78HoFFP7bj0jQSNC3P26K9xPolFXbAlNJe41VMdI7xOkOF0D9GCplEylGlUlCgpaBnbloI4WcbH+RQ6n6Qp6MmNE+/xC3OMMhgEBacbiGtIR71N/HcDYDUORE335sSRpkrHhMxk3eWgZdIyfX88n9UkI3CtgNGIGgF8/w7ZYF2XBmVuv5+QE9d5fM9pZKWQnzBnsMJy4Xc+qZrZMI45KCHIW/DSFVGSsGboiVHSNVOu3mNhPSjvJtIH/7lItCG6m5zvBAvNf8QIDAQAB
+```
 
 #### Connecting to the aggregator with HTTP server:
 ```bash

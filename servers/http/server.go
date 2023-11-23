@@ -19,7 +19,14 @@ func CreateServer(wg *sync.WaitGroup, project string, port string) {
 	defer wg.Done()
 
 	// Routes
-	http.HandleFunc("/", mid.SetMiddlewareLog(mid.SetMiddlewareJSON(mid.JWTValidation(connectToQuerier(project)))))
+	key := os.Getenv("KEY")
+	if key != "" {
+		mid.SetPublicKey(key)
+		http.HandleFunc("/", mid.SetMiddlewareLog(mid.SetMiddlewareJSON(mid.JWTValidation(connectToQuerier(project)))))
+	} else {
+		http.HandleFunc("/", connectToQuerier(project))
+	}
+
 	http.HandleFunc("/healthz", healthCheck)
 
 	_, err := strconv.Atoi(port)

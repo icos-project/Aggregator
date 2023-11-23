@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgTGF4mKVEa+eWX0S/+EWIfkkqbLba5WuQ1KKGRQz+P56Y0WNRbgjNl0CObndffmixbpgp4kg5jKq78HoFFP7bj0jQSNC3P26K9xPolFXbAlNJe41VMdI7xOkOF0D9GCplEylGlUlCgpaBnbloI4WcbH+RQ6n6Qp6MmNE+/xC3OMMhgEBacbiGtIR71N/HcDYDUORE335sSRpkrHhMxk3eWgZdIyfX88n9UkI3CtgNGIGgF8/w7ZYF2XBmVuv5+QE9d5fM9pZKWQnzBnsMJy4Xc+qZrZMI45KCHIW/DSFVGSsGboiVHSNVOu3mNhPSjvJtIH/7lItCG6m5zvBAvNf8QIDAQAB"
+	base64EncodedPublicKey string
 )
 
 func SetMiddlewareJSON(next http.HandlerFunc) http.HandlerFunc {
@@ -101,4 +101,8 @@ func parseKeycloakRSAPublicKey(base64Encoded string) (*rsa.PublicKey, error) {
 		return publicKey, nil
 	}
 	return nil, fmt.Errorf("unexpected key type %T", publicKey)
+}
+
+func SetPublicKey(key string) {
+	base64EncodedPublicKey = key
 }
