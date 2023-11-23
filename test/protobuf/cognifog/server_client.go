@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	pb "icos/server/servers/protobuf/cognifog"
+	pb "aggregator/servers/protobuf/cognifog"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

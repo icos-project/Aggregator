@@ -1,15 +1,15 @@
 package models_icos
 
 import (
+	"aggregator/querier"
 	"encoding/json"
 	"fmt"
-	"icos/server/querier"
 )
 
 func GetInfra() []byte {
 
 	// Get metrics from Thanos
-	clusters := queryThanos()
+	clusters := queryPrometheus()
 
 	// Convert to JSON
 	json, err := json.MarshalIndent(clusters, "", "\t")
@@ -20,7 +20,7 @@ func GetInfra() []byte {
 	return json
 }
 
-func queryThanos() map[string]Cluster {
+func queryPrometheus() map[string]Cluster {
 
 	var clusters = map[string]Cluster{}
 

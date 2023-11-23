@@ -1,10 +1,11 @@
-package server_icos
+package server_http
 
 import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -54,7 +55,9 @@ func TestHTTPRequest(t *testing.T) {
 	w2 := []byte(strings.ReplaceAll(string(w1), "\n", ""))
 	want := []byte(strings.ReplaceAll(string(w2), " ", ""))
 
-	go CreateServer("icos")
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go CreateServer(&wg, "icos", "8080")
 	time.Sleep(time.Second) // Wait for server to start up
 
 	c := &http.Client{

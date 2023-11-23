@@ -1,14 +1,14 @@
 package models_cognifog
 
 import (
-	"icos/server/querier"
-	pb "icos/server/servers/protobuf/cognifog"
+	"aggregator/querier"
+	pb "aggregator/servers/protobuf/cognifog"
 )
 
 func GetInfra() *pb.InfrastructureModel {
 
 	// Get metrics from Thanos
-	infra := queryThanos()
+	infra := queryPrometheus()
 
 	// Convert metrics to server.proto structs
 	newInfra := ConvertMetrics(infra)
@@ -16,7 +16,7 @@ func GetInfra() *pb.InfrastructureModel {
 	return newInfra
 }
 
-func queryThanos() map[string]Cluster {
+func queryPrometheus() map[string]Cluster {
 
 	var clusters = map[string]Cluster{}
 

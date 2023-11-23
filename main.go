@@ -1,9 +1,9 @@
 package main
 
 import (
+	http "aggregator/servers/http"
+	protobuf "aggregator/servers/protobuf"
 	"fmt"
-	http "icos/server/servers/http"
-	protobuf "icos/server/servers/protobuf"
 	"os"
 	"sync"
 )

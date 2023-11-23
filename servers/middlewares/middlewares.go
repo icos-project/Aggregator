@@ -1,12 +1,12 @@
 package middlewares
 
 import (
+	responses "aggregator/servers/http/responses"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"icos/server/responses"
 	"net/http"
 	"strings"
 	"time"

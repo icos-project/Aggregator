@@ -1,4 +1,4 @@
-package server_cognifog
+package server_protobuff
 
 import (
 	context "context"
@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"sync"
 
-	md "icos/server/models/cognifog"
-	pb "icos/server/servers/protobuf/cognifog"
+	md "aggregator/models/cognifog"
+	pb "aggregator/servers/protobuf/cognifog"
 
 	"google.golang.org/grpc"
 )

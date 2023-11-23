@@ -1,4 +1,4 @@
-package server_icos
+package server_http
 
 import (
 	"errors"
@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"sync"
 
-	mid "icos/server/middlewares"
-	m_icos "icos/server/models/icos"
-	responses "icos/server/responses"
+	m_icos "aggregator/models/icos"
+	responses "aggregator/servers/http/responses"
+	mid "aggregator/servers/middlewares"
 )
 
 func CreateServer(wg *sync.WaitGroup, project string, port string) {
