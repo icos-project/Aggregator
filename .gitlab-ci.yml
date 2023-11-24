@@ -2,3 +2,9 @@ include:
   - project: 'resengit/gitlab/pipeline-helpers'
     ref: main
     file: '/pipelines/docker-image.yaml'
+  - project: 'resengit/gitlab/pipeline-helpers'
+    ref: 'main'
+    file: '/pipelines/helm-chart.yaml'
+
+variables:
+  PH_HELM_CHART_FOLDER: aggregator-chart
