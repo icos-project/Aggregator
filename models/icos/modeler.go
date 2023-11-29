@@ -4,6 +4,8 @@ import (
 	"aggregator/querier"
 	"encoding/json"
 	"fmt"
+	"math"
+	"time"
 )
 
 func GetInfra() []byte {
@@ -20,12 +22,24 @@ func GetInfra() []byte {
 	return json
 }
 
-func queryPrometheus() map[string]Cluster {
+func queryPrometheus() Infrastructure {
+
+	// Timestamps
+	q := querier.PromQLQuery{
+		Metric: "timestamp(up)",
+		Params: map[string]string{}}
+
+	oldest := math.Inf(1)
+	for _, timestamp := range querier.Query(q.String()) {
+		if float64(timestamp.Value) < oldest {
+			oldest = float64(timestamp.Value)
+		}
+	}
 
 	var clusters = map[string]Cluster{}
 
 	// Clusters and Nodes
-	q := querier.PromQLQuery{
+	q = querier.PromQLQuery{
 		Metric: "kube_node_info",
 		Params: map[string]string{}}
 
@@ -55,7 +69,6 @@ func queryPrometheus() map[string]Cluster {
 		Params: map[string]string{}}
 
 	for _, pod := range querier.Query(q.String()) {
-
 		cluster_id := string(pod.Metric["icos_agent_cluster_id"])
 		pod_name := string(pod.Metric["pod"])
 
@@ -129,5 +142,20 @@ func queryPrometheus() map[string]Cluster {
 		}
 	}
 
-	return clusters
+	// Current time
+	loc := time.FixedZone("Local", 0)
+	tp := time.Date(1970, 1, 1, 0, 0, 0, 0, loc)
+	ts := time.Since(tp).Seconds()
+
+	var time = Timestamp{
+		OldestTimestamp: oldest,
+		TimeSinceOldest: ts - oldest,
+	}
+
+	var infra = Infrastructure{
+		Timestamp: time,
+		Cluster:   clusters,
+	}
+
+	return infra
 }

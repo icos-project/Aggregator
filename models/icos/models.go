@@ -13,6 +13,16 @@ type Controller struct {
 
 type Agents []*Cluster
 
+type Infrastructure struct {
+	Timestamp Timestamp          `json:"timestamp,omitempty"`
+	Cluster   map[string]Cluster `json:"cluster,omitempty"`
+}
+
+type Timestamp struct {
+	OldestTimestamp float64 `json:"oldestTimestamp,omitempty"`
+	TimeSinceOldest float64 `json:"timeSinceOldest,omitempty"`
+}
+
 type Cluster struct {
 	Type                  string                `json:"type,omitempty"`
 	Name                  string                `json:"name,omitempty"`
