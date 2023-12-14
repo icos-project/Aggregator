@@ -36,6 +36,7 @@ type Cluster struct {
 
 type Pod struct {
 	Name               string               `json:"name,omitempty"`
+	IP                 string               `json:"ip,omitempty"`
 	Status             string               `json:"status,omitempty"`
 	NumberOfContainers int32                `json:"numberOfContainers,omitempty"`
 	NumberOfApps       int32                `json:"numberOfApps,omitempty"`
@@ -65,38 +66,59 @@ type Location struct {
 }
 
 type Node struct {
-	Type           string         `json:"type,omitempty"`
-	Name           string         `json:"name,omitempty"`
-	StaticMetrics  StaticMetrics  `json:"staticMetrics,omitempty"`
-	DynamicMetrics DynamicMetrics `json:"dynamicMetrics,omitempty"`
+	Type           string            `json:"type,omitempty"`
+	Name           string            `json:"name,omitempty"`
+	StaticMetrics  StaticMetrics     `json:"staticMetrics,omitempty"`
+	DynamicMetrics DynamicMetrics    `json:"dynamicMetrics,omitempty"`
+	Devices        map[string]Device `json:"devices,omitempty"`
 }
 
-type StaticMetrics struct { //TODO: separate in []CPU?, []GPU
-	CPUCores        float64   `json:"cpuCores,omitempty"`
+type StaticMetrics struct {
+	CPUCores        int32     `json:"cpuCores,omitempty"`
 	CPUMaxFrecuency string    `json:"cpuMaxFrecuency,omitempty"`
 	GPUCores        float64   `json:"gpuCores,omitempty"`
 	GPUMaxFrecuency string    `json:"gpuMaxFrecuency,omitempty"`
 	GPURAMMemory    string    `json:"gpuRAMMemory,omitempty"`
-	RAMMemory       string    `json:"RAMMemory,omitempty"`
+	RAMMemory       int64     `json:"RAMMemory,omitempty"`
 	Storage         []Storage `json:"storage,omitempty"`
 }
 
-type DynamicMetrics struct { //TODO: separate in []CPU?, []GPU
-	CPUFrecuency         string         `json:"cpuFrecuency,omitempty"`
-	CPUTemperature       float64        `json:"cpuTemperature,omitempty"`
-	CPUEnergyConsumption float64        `json:"cpuEnergyConsumption,omitempty"`
-	GPUFrecuency         string         `json:"gpuFrecuency,omitempty"`
-	GPUTemperature       float64        `json:"gpuTemperature,omitempty"`
-	GPUEnergyConsumption float64        `json:"gpuEnergyConsumption,omitempty"`
-	RAMUsage             string         `json:"ramUsage,omitempty"`
-	NetworkUsage         []NetworkUsage `json:"networkUsage,omitempty"`
+type DynamicMetrics struct {
+	UpTime               float64      `json:"upTime,omitempty"`
+	CPUFrecuency         string       `json:"cpuFrecuency,omitempty"`
+	CPUTemperature       float64      `json:"cpuTemperature,omitempty"`
+	CPUEnergyConsumption float64      `json:"cpuEnergyConsumption,omitempty"`
+	GPUFrecuency         string       `json:"gpuFrecuency,omitempty"`
+	GPUTemperature       float64      `json:"gpuTemperature,omitempty"`
+	GPUEnergyConsumption float64      `json:"gpuEnergyConsumption,omitempty"`
+	RAMUsage             string       `json:"ramUsage,omitempty"`
+	NetworkUsage         NetworkUsage `json:"networkUsage,omitempty"`
+}
+
+type Device struct {
+	Name string `json:"name,omitempty"`
+	Type string `json:"type,omitempty"`
 }
 
 type Storage struct { //TODO: complete
 }
 
-type NetworkUsage struct { //TODO: complete
+type NetworkUsage struct {
+	ConnectivityType string               `json:"connectivityType,omitempty"`
+	Latency          float64              `json:"latency,omitempty"`
+	IPAddress        string               `json:"ipAddress,omitempty"`
+	IPGateway        string               `json:"ipGateway,omitempty"`
+	Interfaces       map[string]Interface `json:"interfaces,omitempty"`
+}
 
+type Interface struct {
+	Name          float64 `json:"name,omitempty"`
+	Type          string  `json:"type,omitempty"`
+	Speed         float64 `json:"speed,omitempty"`
+	IP            string  `json:"ip,omitempty"`
+	SubnetMask    string  `json:"subnetMask,omitempty"`
+	IngressUssage string  `json:"ingressUssage,omitempty"`
+	EngressUssage string  `json:"engressUssage,omitempty"`
 }
 
 type API struct {

@@ -60,7 +60,7 @@ func Query(query string) model.Vector {
 	case model.Vector:
 
 		if r.Len() == 0 {
-			fmt.Println("PromQL Query Result length is zero")
+			fmt.Printf("PromQL Query Result length is zero: %s\n", query)
 		}
 
 		return r
