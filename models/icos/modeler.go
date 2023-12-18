@@ -102,7 +102,7 @@ func queryPrometheus() Infrastructure {
 
 	// Cluster - Node - Devices
 	q = querier.PromQLQuery{
-		Metric: "node_mounted",
+		Metric: "node_mounted==1",
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
