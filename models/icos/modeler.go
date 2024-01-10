@@ -77,11 +77,44 @@ func queryPrometheus() Infrastructure {
 		node_name := string(node.Metric["node"])
 		cores := int32(node.Value)
 
-		if cluster_id != "self" {
-			n := clusters[cluster_id].Node[node_name]
-			n.StaticMetrics.CPUCores = cores
-			clusters[cluster_id].Node[node_name] = n
+		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
+			if cluster_id != "self" {
+				n := clusters[cluster_id].Node[node_name]
+				n.StaticMetrics.CPUCores = cores
+				clusters[cluster_id].Node[node_name] = n
+			}
 		}
+	}
+
+	q = querier.PromQLQuery{
+		Metric: "node_cpu_frequency_max_hertz",
+		Params: map[string]string{}}
+
+	freqs := make(map[[2]string][]int64)
+	for _, node := range querier.Query(q.String()) {
+		cluster_id := string(node.Metric["icos_agent_cluster_id"])
+		node_name := string(node.Metric["k8s_node_name"])
+		frequency := int64(node.Value)
+
+		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
+			if cluster_id != "self" {
+				key := [2]string{cluster_id, node_name}
+
+				if _, exists := freqs[key]; !exists {
+					freqs[key] = []int64{frequency}
+				} else {
+					l := freqs[key]
+					l = append(l, frequency)
+					freqs[key] = l
+				}
+			}
+		}
+	}
+	for comb, f := range freqs {
+		maxFrequency := maxInt64(f)
+		n := clusters[comb[0]].Node[comb[1]]
+		n.StaticMetrics.CPUMaxFrequency = maxFrequency
+		clusters[comb[0]].Node[comb[1]] = n
 	}
 
 	q = querier.PromQLQuery{
@@ -93,16 +126,73 @@ func queryPrometheus() Infrastructure {
 		node_name := string(node.Metric["node"])
 		ram := int64(node.Value)
 
-		if cluster_id != "self" {
-			n := clusters[cluster_id].Node[node_name]
-			n.StaticMetrics.RAMMemory = ram
-			clusters[cluster_id].Node[node_name] = n
+		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
+			if cluster_id != "self" {
+				n := clusters[cluster_id].Node[node_name]
+				n.StaticMetrics.RAMMemory = ram
+				clusters[cluster_id].Node[node_name] = n
+			}
+		}
+	}
+
+	// Cluster - Node - DynamicMetrics
+	q = querier.PromQLQuery{
+		Metric: "node_thermal_zone_temp",
+		Params: map[string]string{}}
+
+	for _, node := range querier.Query(q.String()) {
+		cluster_id := string(node.Metric["icos_agent_cluster_id"])
+		node_name := string(node.Metric["k8s_node_name"])
+		temp := float64(node.Value)
+
+		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
+			if cluster_id != "self" {
+				n := clusters[cluster_id].Node[node_name]
+				n.DynamicMetrics.CPUTemperature = temp
+				clusters[cluster_id].Node[node_name] = n
+			}
+		}
+	}
+
+	q = querier.PromQLQuery{
+		Metric: "scaph_host_energy_microjoules_total",
+		Params: map[string]string{}}
+
+	for _, node := range querier.Query(q.String()) {
+		cluster_id := string(node.Metric["icos_agent_cluster_id"])
+		node_name := string(node.Metric["k8s_node_name"])
+		energy := float64(node.Value) / 1000000
+
+		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
+			if cluster_id != "self" {
+				n := clusters[cluster_id].Node[node_name]
+				n.DynamicMetrics.CPUEnergyConsumption = energy
+				clusters[cluster_id].Node[node_name] = n
+			}
+		}
+	}
+
+	q = querier.PromQLQuery{
+		Metric: "node_memory_MemFree_bytes",
+		Params: map[string]string{}}
+
+	for _, node := range querier.Query(q.String()) {
+		cluster_id := string(node.Metric["icos_agent_cluster_id"])
+		node_name := string(node.Metric["k8s_node_name"])
+		ram := int64(node.Value)
+
+		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
+			if cluster_id != "self" {
+				n := clusters[cluster_id].Node[node_name]
+				n.DynamicMetrics.FreeRAM = ram
+				clusters[cluster_id].Node[node_name] = n
+			}
 		}
 	}
 
 	// Cluster - Node - Devices
 	q = querier.PromQLQuery{
-		Metric: "node_mounted==1",
+		Metric: "node_mounted",
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
@@ -111,12 +201,14 @@ func queryPrometheus() Infrastructure {
 		device_name := string(node.Metric["device"])
 		device_type := strings.Split(device_name, "_")[0]
 
-		newDev := Device{
-			Name: device_name,
-			Type: device_type,
-		}
+		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
+			newDev := Device{
+				Name: device_name,
+				Type: device_type,
+			}
 
-		clusters[cluster_id].Node[node_name].Devices[device_name] = newDev
+			clusters[cluster_id].Node[node_name].Devices[device_name] = newDev
+		}
 
 	}
 
@@ -130,15 +222,17 @@ func queryPrometheus() Infrastructure {
 		pod_name := string(pod.Metric["pod"])
 		pod_ip := string(pod.Metric["pod_ip"])
 
-		if cluster_id != "self" {
-			newPod := Pod{
-				Name:      pod_name,
-				Container: map[string]Container{},
+		if checkCluster(cluster_id, clusters, q.Metric) {
+			if cluster_id != "self" {
+				newPod := Pod{
+					Name:      pod_name,
+					Container: map[string]Container{},
+				}
+				if pod_ip != "" {
+					newPod.IP = pod_ip
+				}
+				clusters[cluster_id].Pod[pod_name] = newPod
 			}
-			if pod_ip != "" {
-				newPod.IP = pod_ip
-			}
-			clusters[cluster_id].Pod[pod_name] = newPod
 		}
 	}
 
@@ -153,10 +247,12 @@ func queryPrometheus() Infrastructure {
 		pod_name := string(pod.Metric["pod"])
 		status := string(pod.Metric["phase"])
 
-		if cluster_id != "self" {
-			pod := clusters[cluster_id].Pod[pod_name]
-			pod.Status = status
-			clusters[cluster_id].Pod[pod_name] = pod
+		if checkClusterPod(cluster_id, pod_name, clusters, q.Metric) {
+			if cluster_id != "self" {
+				pod := clusters[cluster_id].Pod[pod_name]
+				pod.Status = status
+				clusters[cluster_id].Pod[pod_name] = pod
+			}
 		}
 	}
 
@@ -172,12 +268,14 @@ func queryPrometheus() Infrastructure {
 		cont_name := string(container.Metric["container"])
 		node := string(container.Metric["k8s_node_name"])
 
-		if cluster_id != "self" {
-			newContainer := Container{
-				Name: cont_name,
-				Node: node,
+		if checkClusterPod(cluster_id, pod_name, clusters, q.Metric) {
+			if cluster_id != "self" {
+				newContainer := Container{
+					Name: cont_name,
+					Node: node,
+				}
+				clusters[cluster_id].Pod[pod_name].Container[cont_name] = newContainer
 			}
-			clusters[cluster_id].Pod[pod_name].Container[cont_name] = newContainer
 		}
 	}
 
@@ -202,7 +300,7 @@ func queryPrometheus() Infrastructure {
 		cont_name := string(container.Metric["k8s_container_name"])
 		value := container.Value
 
-		if _, exists := clusters[cluster_id].Pod[pod_name].Container[cont_name]; exists {
+		if checkClusterPodContainer(cluster_id, pod_name, cont_name, clusters, q.Metric) {
 			cont := clusters[cluster_id].Pod[pod_name].Container[cont_name]
 			cont.CPUUsage = float64(value)
 			clusters[cluster_id].Pod[pod_name].Container[cont_name] = cont
@@ -225,4 +323,74 @@ func queryPrometheus() Infrastructure {
 	}
 
 	return infra
+}
+
+func maxInt64(list []int64) int64 {
+	max := int64(math.Inf(-1))
+	for _, n := range list {
+		if n > max {
+			max = n
+		}
+	}
+	return max
+}
+
+func checkCluster(cluster string, clusters map[string]Cluster, metric string) bool {
+	_, existsCluster := clusters[cluster]
+
+	if !existsCluster {
+		fmt.Println("Unknown cluster ", cluster)
+		fmt.Println("Error in metric: ", metric)
+	}
+
+	return existsCluster
+}
+
+func checkClusterNode(cluster string, node string, clusters map[string]Cluster, metric string) bool {
+	_, existsCluster := clusters[cluster]
+	_, existsNode := clusters[cluster].Node[node]
+
+	if !existsCluster {
+		fmt.Println("Unknown cluster ", cluster)
+		fmt.Println("Error in metric: ", metric)
+	} else if !existsNode {
+		fmt.Println("Unknown node ", node, " in cluster ", cluster)
+		fmt.Println("Error in metric: ", metric)
+	}
+
+	return existsCluster && existsNode
+}
+
+func checkClusterPod(cluster string, pod string, clusters map[string]Cluster, metric string) bool {
+	_, existsCluster := clusters[cluster]
+	_, existsPod := clusters[cluster].Pod[pod]
+
+	if !existsCluster {
+		fmt.Println("Unknown cluster ", cluster)
+		fmt.Println("Error in metric: ", metric)
+	} else if !existsPod {
+		fmt.Println("Unknown pod ", pod, " in cluster ", cluster)
+		fmt.Println("Error in metric: ", metric)
+	}
+
+	return existsCluster && existsPod
+}
+
+func checkClusterPodContainer(cluster string, pod string, container string, clusters map[string]Cluster, metric string) bool {
+	_, existsCluster := clusters[cluster]
+	_, existsPod := clusters[cluster].Pod[pod]
+	_, existsContainer := clusters[cluster].Pod[pod].Container[container]
+
+	if !existsCluster {
+		fmt.Println("Unknown cluster ", cluster)
+		fmt.Println("Error in metric: ", metric)
+	} else if !existsPod {
+		fmt.Println("Unknown pod ", pod, " in cluster ", cluster)
+		fmt.Println("Error in metric: ", metric)
+	} else if !existsContainer {
+		fmt.Println("Unknown Container ", container, " in pod ", pod, " in cluster ", cluster)
+		fmt.Println("Error in metric: ", metric)
+	}
+
+	return existsCluster && existsPod && existsContainer
 }
