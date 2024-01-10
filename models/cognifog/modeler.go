@@ -3,6 +3,7 @@ package models_cognifog
 import (
 	"aggregator/querier"
 	pb "aggregator/servers/protobuf/cognifog"
+	"fmt"
 )
 
 func GetInfra() *pb.InfrastructureModel {
@@ -56,9 +57,11 @@ func queryPrometheus() map[string]Cluster {
 		node_name := string(result.Metric["k8s_node_name"])
 		cluster_name := string(result.Metric["icos_agent_cluster_id"])
 
-		node := clusters[cluster_name].Nodes[node_name]
-		node.Resources.MemoryInBytes = int64(result.Value)
-		clusters[cluster_name].Nodes[node_name] = node
+		if checkClusterNode(cluster_name, node_name, clusters, q.Metric) {
+			node := clusters[cluster_name].Nodes[node_name]
+			node.Resources.MemoryInBytes = int64(result.Value)
+			clusters[cluster_name].Nodes[node_name] = node
+		}
 	}
 
 	// Get available memory
@@ -71,9 +74,11 @@ func queryPrometheus() map[string]Cluster {
 		node_name := string(result.Metric["k8s_node_name"])
 		cluster_name := string(result.Metric["icos_agent_cluster_id"])
 
-		node := clusters[cluster_name].Nodes[node_name]
-		node.Available_resources.MemoryInBytes = int64(result.Value)
-		clusters[cluster_name].Nodes[node_name] = node
+		if checkClusterNode(cluster_name, node_name, clusters, q.Metric) {
+			node := clusters[cluster_name].Nodes[node_name]
+			node.Available_resources.MemoryInBytes = int64(result.Value)
+			clusters[cluster_name].Nodes[node_name] = node
+		}
 	}
 
 	return clusters
@@ -107,4 +112,19 @@ func ConvertMetrics(clusters map[string]Cluster) *pb.InfrastructureModel {
 	}
 
 	return infra
+}
+
+func checkClusterNode(cluster string, node string, clusters map[string]Cluster, metric string) bool {
+	_, existsCluster := clusters[cluster]
+	_, existsNode := clusters[cluster].Nodes[node]
+
+	if !existsCluster {
+		fmt.Println("Unknown cluster ", cluster)
+		fmt.Println("Error in metric: ", metric)
+	} else if !existsNode {
+		fmt.Println("Unknown node ", node, " in cluster ", cluster)
+		fmt.Println("Error in metric: ", metric)
+	}
+
+	return existsCluster && existsNode
 }
