@@ -195,16 +195,30 @@ func queryPrometheus() Infrastructure {
 		Metric: "node_mounted",
 		Params: map[string]string{}}
 
-	for _, node := range querier.Query(q.String()) {
-		cluster_id := string(node.Metric["icos_agent_cluster_id"])
-		node_name := string(node.Metric["node_name"])
-		device_name := string(node.Metric["device"])
+	for _, device := range querier.Query(q.String()) {
+		cluster_id := string(device.Metric["icos_agent_cluster_id"])
+		node_name := string(device.Metric["node_name"])
+		device_name := string(device.Metric["device"])
 		device_type := strings.Split(device_name, "_")[0]
+		device_status_n := int8(device.Value)
+		device_path := string(device.Metric["resource_path"])
+
+		device_status := "unknown"
+		switch device_status_n {
+		case -1:
+			device_status = "detached"
+		case 0:
+			device_status = "busy"
+		case 1:
+			device_status = "available"
+		}
 
 		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
 			newDev := Device{
-				Name: device_name,
-				Type: device_type,
+				Name:   device_name,
+				Type:   device_type,
+				Status: device_status,
+				Path:   device_path,
 			}
 
 			clusters[cluster_id].Node[node_name].Devices[device_name] = newDev

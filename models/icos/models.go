@@ -95,8 +95,10 @@ type DynamicMetrics struct {
 }
 
 type Device struct {
-	Name string `json:"name,omitempty"`
-	Type string `json:"type,omitempty"`
+	Name   string `json:"name,omitempty"`
+	Type   string `json:"type,omitempty"`
+	Status string `json:"status,omitempty"`
+	Path   string `json:"path,omitempty"`
 }
 
 type Storage struct {
