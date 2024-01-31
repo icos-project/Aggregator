@@ -72,6 +72,7 @@ type Node struct {
 }
 
 type StaticMetrics struct {
+	CPUArchitecture string    `json:"cpuArchitecture,omitempty"`
 	CPUCores        int32     `json:"cpuCores,omitempty"`
 	CPUMaxFrequency int64     `json:"cpuMaxFrequency,omitempty"`
 	GPUCores        float64   `json:"gpuCores,omitempty"`

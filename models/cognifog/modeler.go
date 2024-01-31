@@ -21,15 +21,15 @@ func queryPrometheus() map[string]Cluster {
 
 	var clusters = map[string]Cluster{}
 
-	// Create clusters and nodes
+	// Cluster - Nodes
 	q := querier.PromQLQuery{
-		Metric: "kube_node_info",
+		Metric: "node_uname_info",
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
-
 		cluster_id := string(node.Metric["icos_agent_cluster_id"])
-		node_name := string(node.Metric["k8s_node_name"])
+		node_name := string(node.Metric["icos_agent_node_id"])
+		architecture := string(node.Metric["machine"])
 
 		if _, exists := clusters[cluster_id]; !exists {
 			var newCluster = Cluster{
@@ -38,16 +38,16 @@ func queryPrometheus() map[string]Cluster {
 			clusters[cluster_id] = newCluster
 		}
 
-		// Create new node
 		newNode := Node{
 			Id:                  node_name,
+			CPUArchitecture:     architecture,
 			Resources:           ComputeResources{},
 			Available_resources: ComputeResources{},
 		}
 		clusters[cluster_id].Nodes[node_name] = newNode
 	}
 
-	// Get total memory
+	// Cluster - Node - Resources
 	q = querier.PromQLQuery{
 		Metric: "node_memory_MemTotal_bytes",
 		Params: map[string]string{}}
@@ -64,7 +64,7 @@ func queryPrometheus() map[string]Cluster {
 		}
 	}
 
-	// Get available memory
+	// Cluster - Node - Available_resources
 	q = querier.PromQLQuery{
 		Metric: "node_memory_MemAvailable_bytes",
 		Params: map[string]string{}}
@@ -95,8 +95,9 @@ func ConvertMetrics(clusters map[string]Cluster) *pb.InfrastructureModel {
 	for _, cluster := range clusters {
 		for _, node := range cluster.Nodes {
 			newNode := pb.InfrastructureModel_Node{
-				Id:       node.Id,
-				NodeType: pb.InfrastructureModel_Node_NodeType(node.Node_type),
+				Id:              node.Id,
+				NodeType:        pb.InfrastructureModel_Node_NodeType(node.Node_type),
+				CpuArchitecture: node.CPUArchitecture,
 				Resources: &pb.ComputeResources{
 					MilliCPU:      node.Resources.MilliCPU,
 					MemoryInBytes: node.Resources.MemoryInBytes,

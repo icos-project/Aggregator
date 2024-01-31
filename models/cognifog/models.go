@@ -14,6 +14,7 @@ type Cluster struct {
 type Node struct {
 	Id                  string           `json:"id,omitempty"`
 	Node_type           NodeType         `json:"node_type,omitempty"`
+	CPUArchitecture     string           `json:"cpuArchitecture,omitempty"`
 	Resources           ComputeResources `json:"resources,omitempty"`
 	Available_resources ComputeResources `json:"available_resources,omitempty"`
 	Labels              []string         `json:"labels,omitempty"`

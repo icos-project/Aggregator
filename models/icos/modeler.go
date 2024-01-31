@@ -41,13 +41,14 @@ func queryPrometheus() Infrastructure {
 
 	// Clusters and Nodes
 	q = querier.PromQLQuery{
-		Metric: "kube_node_info",
+		Metric: "node_uname_info",
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
 
 		cluster_id := string(node.Metric["icos_agent_cluster_id"])
-		node_name := string(node.Metric["node"])
+		node_name := string(node.Metric["icos_agent_node_id"])
+		architecture := string(node.Metric["machine"])
 
 		if cluster_id != "self" {
 			if _, exists := clusters[cluster_id]; !exists {
@@ -60,8 +61,9 @@ func queryPrometheus() Infrastructure {
 			}
 
 			newNode := Node{
-				Name:    node_name,
-				Devices: map[string]Device{},
+				Name:          node_name,
+				StaticMetrics: StaticMetrics{CPUArchitecture: architecture},
+				Devices:       map[string]Device{},
 			}
 			clusters[cluster_id].Node[node_name] = newNode
 		}

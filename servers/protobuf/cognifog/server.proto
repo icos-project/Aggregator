@@ -34,16 +34,19 @@ message InfrastructureModel {
     // Can be compute node or network node.
     NodeType node_type = 2;
 
+    // CPU Architecture
+    string cpu_architecture = 3;
+
     // These are the total resources in the node.
     // The resource fields are empty for Network nodes.
-    ComputeResources resources = 3;
+    ComputeResources resources = 4;
 
     // These are the resources on the node that are available to allocate.
-    ComputeResources available_resources = 4;
+    ComputeResources available_resources = 5;
 
     // Nodes can be labelled to indicate capabilities, architecture,
     // maybe the security zone.
-    repeated string labels = 5;
+    repeated string labels = 6;
   }
 
   repeated Node nodes = 1;

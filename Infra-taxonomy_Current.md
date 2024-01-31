@@ -32,6 +32,7 @@ Infrastrcuture:
             Type:
             Name: #DONE
             StaticMetrics:
+                CPUArchitecture: #DONE
                 CPUCores: #DONE
                 CPUMaxFrequency: Hertzs #DONE
                 GPUCores:
