@@ -120,11 +120,9 @@ func checkClusterNode(cluster string, node string, clusters map[string]Cluster, 
 	_, existsNode := clusters[cluster].Nodes[node]
 
 	if !existsCluster {
-		fmt.Println("Unknown cluster ", cluster)
-		fmt.Println("Error in metric: ", metric)
+		fmt.Println("Unknown cluster ", cluster, ". Error in metric: ", metric)
 	} else if !existsNode {
-		fmt.Println("Unknown node ", node, " in cluster ", cluster)
-		fmt.Println("Error in metric: ", metric)
+		fmt.Println("Unknown node ", node, " in cluster ", cluster, ". Error in metric: ", metric)
 	}
 
 	return existsCluster && existsNode

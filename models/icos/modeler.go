@@ -355,8 +355,7 @@ func checkCluster(cluster string, clusters map[string]Cluster, metric string) bo
 	_, existsCluster := clusters[cluster]
 
 	if !existsCluster {
-		fmt.Println("Unknown cluster ", cluster)
-		fmt.Println("Error in metric: ", metric)
+		fmt.Println("Unknown cluster ", cluster, ". Error in metric: ", metric)
 	}
 
 	return existsCluster
@@ -367,11 +366,9 @@ func checkClusterNode(cluster string, node string, clusters map[string]Cluster, 
 	_, existsNode := clusters[cluster].Node[node]
 
 	if !existsCluster {
-		fmt.Println("Unknown cluster ", cluster)
-		fmt.Println("Error in metric: ", metric)
+		fmt.Println("Unknown cluster ", cluster, ". Error in metric: ", metric)
 	} else if !existsNode {
-		fmt.Println("Unknown node ", node, " in cluster ", cluster)
-		fmt.Println("Error in metric: ", metric)
+		fmt.Println("Unknown node ", node, " in cluster ", cluster, ". Error in metric: ", metric)
 	}
 
 	return existsCluster && existsNode
@@ -382,11 +379,9 @@ func checkClusterPod(cluster string, pod string, clusters map[string]Cluster, me
 	_, existsPod := clusters[cluster].Pod[pod]
 
 	if !existsCluster {
-		fmt.Println("Unknown cluster ", cluster)
-		fmt.Println("Error in metric: ", metric)
+		fmt.Println("Unknown cluster ", cluster, ". Error in metric: ", metric)
 	} else if !existsPod {
-		fmt.Println("Unknown pod ", pod, " in cluster ", cluster)
-		fmt.Println("Error in metric: ", metric)
+		fmt.Println("Unknown pod ", pod, " in cluster ", cluster, ". Error in metric: ", metric)
 	}
 
 	return existsCluster && existsPod
@@ -398,14 +393,11 @@ func checkClusterPodContainer(cluster string, pod string, container string, clus
 	_, existsContainer := clusters[cluster].Pod[pod].Container[container]
 
 	if !existsCluster {
-		fmt.Println("Unknown cluster ", cluster)
-		fmt.Println("Error in metric: ", metric)
+		fmt.Println("Unknown cluster ", cluster, ". Error in metric: ", metric)
 	} else if !existsPod {
-		fmt.Println("Unknown pod ", pod, " in cluster ", cluster)
-		fmt.Println("Error in metric: ", metric)
+		fmt.Println("Unknown pod ", pod, " in cluster ", cluster, ". Error in metric: ", metric)
 	} else if !existsContainer {
-		fmt.Println("Unknown Container ", container, " in pod ", pod, " in cluster ", cluster)
-		fmt.Println("Error in metric: ", metric)
+		fmt.Println("Unknown Container ", container, " in pod ", pod, " in cluster ", cluster, ". Error in metric: ", metric)
 	}
 
 	return existsCluster && existsPod && existsContainer
