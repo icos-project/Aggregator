@@ -76,7 +76,7 @@ func queryPrometheus() Infrastructure {
 
 	for _, node := range querier.Query(q.String()) {
 		cluster_id := string(node.Metric["icos_agent_cluster_id"])
-		node_name := string(node.Metric["node"])
+		node_name := string(node.Metric["icos_agent_node_id"])
 		cores := int32(node.Value)
 
 		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
@@ -95,7 +95,7 @@ func queryPrometheus() Infrastructure {
 	freqs := make(map[[2]string][]int64)
 	for _, node := range querier.Query(q.String()) {
 		cluster_id := string(node.Metric["icos_agent_cluster_id"])
-		node_name := string(node.Metric["k8s_node_name"])
+		node_name := string(node.Metric["icos_agent_node_id"])
 		frequency := int64(node.Value)
 
 		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
@@ -125,7 +125,7 @@ func queryPrometheus() Infrastructure {
 
 	for _, node := range querier.Query(q.String()) {
 		cluster_id := string(node.Metric["icos_agent_cluster_id"])
-		node_name := string(node.Metric["node"])
+		node_name := string(node.Metric["icos_agent_node_id"])
 		ram := int64(node.Value)
 
 		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
@@ -144,7 +144,7 @@ func queryPrometheus() Infrastructure {
 
 	for _, node := range querier.Query(q.String()) {
 		cluster_id := string(node.Metric["icos_agent_cluster_id"])
-		node_name := string(node.Metric["k8s_node_name"])
+		node_name := string(node.Metric["icos_agent_node_id"])
 		temp := float64(node.Value)
 
 		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
@@ -162,7 +162,7 @@ func queryPrometheus() Infrastructure {
 
 	for _, node := range querier.Query(q.String()) {
 		cluster_id := string(node.Metric["icos_agent_cluster_id"])
-		node_name := string(node.Metric["k8s_node_name"])
+		node_name := string(node.Metric["icos_agent_node_id"])
 		energy := float64(node.Value) / 1000000
 
 		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
@@ -180,7 +180,7 @@ func queryPrometheus() Infrastructure {
 
 	for _, node := range querier.Query(q.String()) {
 		cluster_id := string(node.Metric["icos_agent_cluster_id"])
-		node_name := string(node.Metric["k8s_node_name"])
+		node_name := string(node.Metric["icos_agent_node_id"])
 		ram := int64(node.Value)
 
 		if checkClusterNode(cluster_id, node_name, clusters, q.Metric) {
@@ -199,7 +199,7 @@ func queryPrometheus() Infrastructure {
 
 	for _, device := range querier.Query(q.String()) {
 		cluster_id := string(device.Metric["icos_agent_cluster_id"])
-		node_name := string(device.Metric["node_name"])
+		node_name := string(device.Metric["icos_agent_node_id"])
 		device_name := string(device.Metric["device"])
 		device_type := strings.Split(device_name, "_")[0]
 		device_status_n := int8(device.Value)
@@ -282,7 +282,7 @@ func queryPrometheus() Infrastructure {
 		cluster_id := string(container.Metric["icos_agent_cluster_id"])
 		pod_name := string(container.Metric["pod"])
 		cont_name := string(container.Metric["container"])
-		node := string(container.Metric["k8s_node_name"])
+		node := string(container.Metric["icos_agent_node_id"])
 
 		if checkClusterPod(cluster_id, pod_name, clusters, q.Metric) {
 			if cluster_id != "self" {
