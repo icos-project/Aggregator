@@ -42,8 +42,8 @@ func queryPrometheus() map[string]Cluster {
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
-		cluster_id := string(node.Metric["icos_agent_cluster_id"])
-		node_name := string(node.Metric["icos_agent_node_id"])
+		cluster_id := string(node.Metric["k8s_cluster_uid"])
+		node_id := string(node.Metric["icos_host_id"])
 		architecture := string(node.Metric["machine"])
 
 		if _, exists := clusters[cluster_id]; !exists {
@@ -54,12 +54,12 @@ func queryPrometheus() map[string]Cluster {
 		}
 
 		newNode := Node{
-			Id:                  node_name,
+			Id:                  node_id,
 			CPUArchitecture:     architecture,
 			Resources:           ComputeResources{},
 			Available_resources: ComputeResources{},
 		}
-		clusters[cluster_id].Nodes[node_name] = newNode
+		clusters[cluster_id].Nodes[node_id] = newNode
 	}
 
 	// Cluster - Node - Resources
@@ -69,13 +69,13 @@ func queryPrometheus() map[string]Cluster {
 
 	for _, result := range querier.Query(q.String()) {
 
-		node_name := string(result.Metric["k8s_node_name"])
-		cluster_name := string(result.Metric["icos_agent_cluster_id"])
+		node_id := string(result.Metric["icos_host_id"])
+		cluster_id := string(result.Metric["k8s_cluster_uid"])
 
-		if checkClusterNode(cluster_name, node_name, clusters, q.Metric) {
-			node := clusters[cluster_name].Nodes[node_name]
+		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) {
+			node := clusters[cluster_id].Nodes[node_id]
 			node.Resources.MemoryInBytes = int64(result.Value)
-			clusters[cluster_name].Nodes[node_name] = node
+			clusters[cluster_id].Nodes[node_id] = node
 		}
 	}
 
@@ -86,13 +86,13 @@ func queryPrometheus() map[string]Cluster {
 
 	for _, result := range querier.Query(q.String()) {
 
-		node_name := string(result.Metric["k8s_node_name"])
-		cluster_name := string(result.Metric["icos_agent_cluster_id"])
+		node_id := string(result.Metric["icos_host_id"])
+		cluster_id := string(result.Metric["k8s_cluster_uid"])
 
-		if checkClusterNode(cluster_name, node_name, clusters, q.Metric) {
-			node := clusters[cluster_name].Nodes[node_name]
+		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) {
+			node := clusters[cluster_id].Nodes[node_id]
 			node.Available_resources.MemoryInBytes = int64(result.Value)
-			clusters[cluster_name].Nodes[node_name] = node
+			clusters[cluster_id].Nodes[node_id] = node
 		}
 	}
 
