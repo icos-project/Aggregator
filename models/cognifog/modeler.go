@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,8 +42,8 @@ func queryPrometheus() map[string]Cluster {
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
-		cluster_id := string(node.Metric["k8s_cluster_uid"])
-		node_id := string(node.Metric["icos_host_id"])
+		cluster_id := string(node.Metric["k8s_cluster_uid"]) // Not implemented
+		node_id := string(node.Metric["cognifog_host_id"])   // Not implemented
 		architecture := string(node.Metric["machine"])
 
 		if _, exists := clusters[cluster_id]; !exists {
@@ -69,8 +69,8 @@ func queryPrometheus() map[string]Cluster {
 
 	for _, result := range querier.Query(q.String()) {
 
-		node_id := string(result.Metric["icos_host_id"])
-		cluster_id := string(result.Metric["k8s_cluster_uid"])
+		node_id := string(result.Metric["cognifog_host_id"])   // Not implemented
+		cluster_id := string(result.Metric["k8s_cluster_uid"]) // Not implemented
 
 		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) {
 			node := clusters[cluster_id].Nodes[node_id]
@@ -86,8 +86,8 @@ func queryPrometheus() map[string]Cluster {
 
 	for _, result := range querier.Query(q.String()) {
 
-		node_id := string(result.Metric["icos_host_id"])
-		cluster_id := string(result.Metric["k8s_cluster_uid"])
+		node_id := string(result.Metric["cognifog_host_id"])   // Not implemented
+		cluster_id := string(result.Metric["k8s_cluster_uid"]) // Not implemented
 
 		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) {
 			node := clusters[cluster_id].Nodes[node_id]
