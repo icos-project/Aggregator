@@ -23,14 +23,14 @@ Infrastrcuture:
     Agent:Cluster[]
         Type:
         Name: #DONE
-        Location:
-            ...
         ServiceLevelAgreement:
         API:
             ...
         Node[]
             Type:
             Name: #DONE
+            Location: #DONE
+                ...
             StaticMetrics:
                 CPUArchitecture: #DONE
                 CPUCores: #DONE

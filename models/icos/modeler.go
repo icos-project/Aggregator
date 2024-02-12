@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -65,6 +66,8 @@ func queryPrometheus() Infrastructure {
 		node_id := string(node.Metric["icos_host_id"])
 		node_name := string(node.Metric["icos_host_name"])
 		architecture := string(node.Metric["machine"])
+		latitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_latitude"]), 8)
+		longitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_longitude"]), 8)
 
 		if cluster_id != "self" {
 			if cluster_id == "" && strings.HasPrefix(node_name, "nuvla") {
@@ -81,7 +84,11 @@ func queryPrometheus() Infrastructure {
 			}
 
 			newNode := Node{
-				Name:          node_name,
+				Name: node_name,
+				Location: Location{
+					Latitude:  latitude,
+					Longitude: longitude,
+				},
 				StaticMetrics: StaticMetrics{CPUArchitecture: architecture},
 				Devices:       map[string]Device{},
 			}
