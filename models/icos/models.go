@@ -41,6 +41,7 @@ type Agents []*Cluster
 
 type Cluster struct {
 	Type                  string                `json:"type,omitempty"`
+	Uuid                  string                `json:"uuid,omitempty"`
 	Name                  string                `json:"name,omitempty"`
 	ServiceLevelAgreement ServiceLevelAgreement `json:"serviceLevelAgreement,omitempty"`
 	API                   API                   `json:"API,omitempty"`
@@ -79,6 +80,7 @@ type Location struct {
 
 type Node struct {
 	Type           string            `json:"type,omitempty"`
+	Uuid           string            `json:"uuid,omitempty"`
 	Name           string            `json:"name,omitempty"`
 	Location       Location          `json:"location,omitempty"`
 	StaticMetrics  StaticMetrics     `json:"staticMetrics,omitempty"`

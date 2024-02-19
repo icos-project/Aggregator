@@ -64,7 +64,7 @@ func queryPrometheus() Infrastructure {
 
 		cluster_id := string(node.Metric["k8s_cluster_uid"])
 		node_id := string(node.Metric["icos_host_id"])
-		node_name := string(node.Metric["icos_host_name"])
+		node_name := string(node.Metric["nodename"])
 		architecture := string(node.Metric["machine"])
 		latitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_latitude"]), 8)
 		longitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_longitude"]), 8)
@@ -76,7 +76,7 @@ func queryPrometheus() Infrastructure {
 
 			if _, exists := clusters[cluster_id]; !exists {
 				var newCluster = Cluster{
-					Name: cluster_id,
+					Uuid: cluster_id,
 					Node: map[string]Node{},
 					Pod:  map[string]Pod{},
 				}
@@ -84,6 +84,7 @@ func queryPrometheus() Infrastructure {
 			}
 
 			newNode := Node{
+				Uuid: node_id,
 				Name: node_name,
 				Location: Location{
 					Latitude:  latitude,
@@ -367,6 +368,42 @@ func queryPrometheus() Infrastructure {
 			cont := clusters[cluster_id].Pod[pod_name].Container[cont_name]
 			cont.CPUUsage = float64(value)
 			clusters[cluster_id].Pod[pod_name].Container[cont_name] = cont
+		}
+	}
+
+	// Cluster
+	q = querier.PromQLQuery{
+		Metric: "tlum_ocm_agent_info",
+		Params: map[string]string{}}
+
+	var clusterIdName = map[string]string{}
+
+	for _, cluster := range querier.Query(q.String()) {
+		cluster_id := string(cluster.Metric["k8s_cluster_uid"])
+		cluster_name := string(cluster.Metric["name"])
+
+		clusterIdName[cluster_id] = cluster_name
+	}
+
+	// Cluster and Node renaming
+	for key_c, cluster := range clusters {
+
+		// Node
+		for key_n, node := range cluster.Node {
+			if node.Name != key_n {
+				cluster.Node[node.Name] = node
+				delete(cluster.Node, key_n)
+			}
+		}
+
+		// Cluster
+		_, existsCluster := clusterIdName[key_c]
+		if existsCluster {
+			if clusterIdName[key_c] != key_c {
+				cluster.Name = clusterIdName[key_c]
+				clusters[clusterIdName[key_c]] = cluster
+				delete(clusters, key_c)
+			}
 		}
 	}
 
