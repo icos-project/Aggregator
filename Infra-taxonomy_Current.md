@@ -21,14 +21,14 @@ Infrastrcuture:
         Any:
 
     Agent:Cluster[]
-        Type:
+        Type: #DONE
         Uuid: #DONE
         Name: #DONE
         ServiceLevelAgreement:
         API:
             ...
         Node[]
-            Type:
+            Type: #DONE
             Uuid: #DONE
             Name: #DONE
             Location: #DONE

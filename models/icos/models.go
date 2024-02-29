@@ -159,3 +159,10 @@ type API struct {
 type ServiceLevelAgreement struct { //TODO: complete
 	Name string `json:"name,omitempty"`
 }
+
+type NuvlaNode struct {
+	Id           string `json:"id,omitempty"`
+	IcosAgentId  string `json:"icos_agent_id,omitempty"`
+	HostName     string `json:"host_name,omitempty"`
+	IcosHostName string `json:"icos_host_name,omitempty"`
+}

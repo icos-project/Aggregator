@@ -41,6 +41,9 @@ func GetInfra() []byte {
 
 func queryPrometheus() Infrastructure {
 
+	var clusters = map[string]Cluster{}
+	var nuvlaNodes = map[string]NuvlaNode{}
+
 	// Timestamps
 	q := querier.PromQLQuery{
 		Metric: "timestamp(up)",
@@ -53,7 +56,22 @@ func queryPrometheus() Infrastructure {
 		}
 	}
 
-	var clusters = map[string]Cluster{}
+	// Nuvla nodes: nuvla_device_info
+	q = querier.PromQLQuery{
+		Metric: "nuvla_device_info",
+		Params: map[string]string{}}
+
+	for _, node := range querier.Query(q.String()) {
+		nuvla_node_id := string(node.Metric["id"])
+
+		var newNuvlaNode = NuvlaNode{
+			Id:           nuvla_node_id,
+			IcosAgentId:  string(node.Metric["icos_agent_id"]),
+			HostName:     string(node.Metric["host_name"]),
+			IcosHostName: string(node.Metric["icos_host_name"]),
+		}
+		nuvlaNodes[nuvla_node_id] = newNuvlaNode
+	}
 
 	// Clusters and Nodes
 	q = querier.PromQLQuery{
@@ -63,6 +81,7 @@ func queryPrometheus() Infrastructure {
 	for _, node := range querier.Query(q.String()) {
 
 		cluster_id := string(node.Metric["k8s_cluster_uid"])
+		cluster_type := "kubernetes"
 		node_id := string(node.Metric["icos_host_id"])
 		node_name := string(node.Metric["nodename"])
 		architecture := string(node.Metric["machine"])
@@ -70,13 +89,15 @@ func queryPrometheus() Infrastructure {
 		longitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_longitude"]), 8)
 
 		if cluster_id != "self" {
-			if cluster_id == "" && strings.HasPrefix(node_name, "nuvla") {
+			if isNuvlaCluster(cluster_id, node_name, nuvlaNodes) {
 				cluster_id = "nuvla"
+				cluster_type = "nuvla"
 			}
 
 			if _, exists := clusters[cluster_id]; !exists {
 				var newCluster = Cluster{
 					Uuid: cluster_id,
+					Type: cluster_type,
 					Node: map[string]Node{},
 					Pod:  map[string]Pod{},
 				}
@@ -85,6 +106,7 @@ func queryPrometheus() Infrastructure {
 
 			newNode := Node{
 				Uuid: node_id,
+				Type: cluster_type,
 				Name: node_name,
 				Location: Location{
 					Latitude:  latitude,
@@ -212,7 +234,7 @@ func queryPrometheus() Infrastructure {
 		node_name := string(node.Metric["icos_host_name"])
 		ram := int64(node.Value)
 
-		if cluster_id == "" && strings.HasPrefix(node_name, "nuvla") {
+		if isNuvlaCluster(cluster_id, node_name, nuvlaNodes) {
 			cluster_id = "nuvla"
 		}
 
@@ -249,7 +271,7 @@ func queryPrometheus() Infrastructure {
 			device_status = "available"
 		}
 
-		if cluster_id == "" && strings.HasPrefix(node_name, "nuvla") {
+		if isNuvlaCluster(cluster_id, node_name, nuvlaNodes) {
 			cluster_id = "nuvla"
 		}
 
@@ -277,7 +299,7 @@ func queryPrometheus() Infrastructure {
 		pod_name := string(pod.Metric["pod"])
 		pod_ip := string(pod.Metric["pod_ip"])
 
-		if cluster_id == "" && strings.HasPrefix(host_name, "nuvla") {
+		if isNuvlaCluster(cluster_id, host_name, nuvlaNodes) {
 			cluster_id = "nuvla"
 		}
 
@@ -360,7 +382,7 @@ func queryPrometheus() Infrastructure {
 		node_name := string(container.Metric["icos_host_name"])
 		value := container.Value
 
-		if cluster_id == "" && strings.HasPrefix(node_name, "nuvla") {
+		if isNuvlaCluster(cluster_id, node_name, nuvlaNodes) {
 			cluster_id = "nuvla"
 		}
 
@@ -423,66 +445,4 @@ func queryPrometheus() Infrastructure {
 	}
 
 	return infra
-}
-
-func maxInt64(list []int64) int64 {
-	max := int64(math.Inf(-1))
-	for _, n := range list {
-		if n > max {
-			max = n
-		}
-	}
-	return max
-}
-
-func checkCluster(cluster string, clusters map[string]Cluster, metric string) bool {
-	_, existsCluster := clusters[cluster]
-
-	if !existsCluster {
-		fmt.Println("Unknown cluster ", cluster, ". Error in metric: ", metric)
-	}
-
-	return existsCluster
-}
-
-func checkClusterNode(cluster string, node string, clusters map[string]Cluster, metric string) bool {
-	_, existsCluster := clusters[cluster]
-	_, existsNode := clusters[cluster].Node[node]
-
-	if !existsCluster {
-		fmt.Println("Unknown cluster ", cluster, ". Error in metric: ", metric)
-	} else if !existsNode {
-		fmt.Println("Unknown node ", node, " in cluster ", cluster, ". Error in metric: ", metric)
-	}
-
-	return existsCluster && existsNode
-}
-
-func checkClusterPod(cluster string, pod string, clusters map[string]Cluster, metric string) bool {
-	_, existsCluster := clusters[cluster]
-	_, existsPod := clusters[cluster].Pod[pod]
-
-	if !existsCluster {
-		fmt.Println("Unknown cluster ", cluster, ". Error in metric: ", metric)
-	} else if !existsPod {
-		fmt.Println("Unknown pod ", pod, " in cluster ", cluster, ". Error in metric: ", metric)
-	}
-
-	return existsCluster && existsPod
-}
-
-func checkClusterPodContainer(cluster string, pod string, container string, clusters map[string]Cluster, metric string) bool {
-	_, existsCluster := clusters[cluster]
-	_, existsPod := clusters[cluster].Pod[pod]
-	_, existsContainer := clusters[cluster].Pod[pod].Container[container]
-
-	if !existsCluster {
-		fmt.Println("Unknown cluster ", cluster, ". Error in metric: ", metric)
-	} else if !existsPod {
-		fmt.Println("Unknown pod ", pod, " in cluster ", cluster, ". Error in metric: ", metric)
-	} else if !existsContainer {
-		fmt.Println("Unknown Container ", container, " in pod ", pod, " in cluster ", cluster, ". Error in metric: ", metric)
-	}
-
-	return existsCluster && existsPod && existsContainer
 }
