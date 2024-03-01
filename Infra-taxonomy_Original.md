@@ -22,8 +22,8 @@ Agent:Cluster[]
   ServiceLevelAgreement: <not sure if state SLA here or at Agent level>
   API:
   Node[]
-    Node_name:
-    Node_type:
+    Type:
+    Name:
     Static_metrics:
       CPU_cores:
       CPU_clock_speed:
@@ -48,6 +48,28 @@ Agent:Cluster[]
       GPU_energy_consumption:
       Network_usage:
       ....
+      Devices []
+        Type: <i.e. Video_camera or Display or Temperature>
+        Name:
+        Status:
+        Any[]:
+          Resolution:
+          EngUnits:
+          MinScale:
+          MaxScale:
+          TouchScreen:
+          ....
+        Network:
+          ResponseType:
+          Latency:
+          Bandwidth: 
+        API:
+          Communication_protocol:
+          Any[]:
+            Protocol_version:
+            Data_format:
+            Authentication:
+            Authorization:
   Network:
     Connectivity_type:
     Latency:
@@ -75,25 +97,4 @@ Agent:Cluster[]
       Container_memory_usage:
       Container_cpu_usage:
       Container_IP:  
-  IoT []
-    IoT_type[]: <i.e. Video_camera or Display or Temperature>
-    Status:
-    Any[]:
-      Resolution:
-      EngUnits:
-      MinScale:
-      MaxScale:
-      TouchScreen:
-      ....
-    Network:
-      ResponseType:
-      Latency:
-      Bandwidth: 
-    API:
-      Communication_protocol:
-      Any[]:
-        Protocol_version:
-        Data_format:
-        Authentication:
-        Authorization:
 ```

@@ -1,4 +1,19 @@
-package models
+/*
+Copyright 2023 Bull SAS
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+package models_icos
 
 type Controllers []*Controller
 
@@ -11,21 +26,34 @@ type Controller struct {
 	Any                   any                   `json:"any,omitempty"`
 }
 
+type Infrastructure struct {
+	Timestamp  Timestamp             `json:"timestamp,omitempty"`
+	Controller map[string]Controller `json:"controller,omitempty"`
+	Cluster    map[string]Cluster    `json:"cluster,omitempty"`
+}
+
+type Timestamp struct {
+	OldestTimestamp float64 `json:"oldestTimestamp,omitempty"`
+	TimeSinceOldest float64 `json:"timeSinceOldest,omitempty"`
+}
+
 type Agents []*Cluster
 
 type Cluster struct {
 	Type                  string                `json:"type,omitempty"`
+	Uuid                  string                `json:"uuid,omitempty"`
 	Name                  string                `json:"name,omitempty"`
-	Location              Location              `json:"location,omitempty"`
 	ServiceLevelAgreement ServiceLevelAgreement `json:"serviceLevelAgreement,omitempty"`
 	API                   API                   `json:"API,omitempty"`
 	Node                  map[string]Node       `json:"node,omitempty"`
+	Network               Network               `json:"network,omitempty"`
 	Pod                   map[string]Pod        `json:"pod,omitempty"`
 	Any                   any                   `json:"any,omitempty"`
 }
 
 type Pod struct {
 	Name               string               `json:"name,omitempty"`
+	IP                 string               `json:"ip,omitempty"`
 	Status             string               `json:"status,omitempty"`
 	NumberOfContainers int32                `json:"numberOfContainers,omitempty"`
 	NumberOfApps       int32                `json:"numberOfApps,omitempty"`
@@ -34,15 +62,11 @@ type Pod struct {
 
 type Container struct {
 	Name            string  `json:"name,omitempty"`
+	IP              string  `json:"ip,omitempty"`
 	Node            string  `json:"node,omitempty"`
-	Port            []Port  `json:"port,omitempty"`
+	Port            string  `json:"port,omitempty"`
 	ContainerMemory string  `json:"containerMemory,omitempty"`
 	CPUUsage        float64 `json:"cpuUsage,omitempty"`
-	IP              string  `json:"ip,omitempty"`
-}
-
-type Port struct {
-	Port string `json:"port,omitempty"`
 }
 
 type Location struct {
@@ -55,38 +79,73 @@ type Location struct {
 }
 
 type Node struct {
-	Type           string         `json:"type,omitempty"`
-	Name           string         `json:"name,omitempty"`
-	StaticMetrics  StaticMetrics  `json:"staticMetrics,omitempty"`
-	DynamicMetrics DynamicMetrics `json:"dynamicMetrics,omitempty"`
+	Type           string            `json:"type,omitempty"`
+	Uuid           string            `json:"uuid,omitempty"`
+	Name           string            `json:"name,omitempty"`
+	Location       Location          `json:"location,omitempty"`
+	StaticMetrics  StaticMetrics     `json:"staticMetrics,omitempty"`
+	DynamicMetrics DynamicMetrics    `json:"dynamicMetrics,omitempty"`
+	Devices        map[string]Device `json:"devices,omitempty"`
 }
 
-type StaticMetrics struct { //TODO: separate in []CPU?, []GPU
-	CPUCores        float64   `json:"cpuCores,omitempty"`
-	CPUMaxFrecuency string    `json:"cpuMaxFrecuency,omitempty"`
+type StaticMetrics struct {
+	CPUArchitecture string    `json:"cpuArchitecture,omitempty"`
+	CPUCores        int32     `json:"cpuCores,omitempty"`
+	CPUMaxFrequency int64     `json:"cpuMaxFrequency,omitempty"`
 	GPUCores        float64   `json:"gpuCores,omitempty"`
-	GPUMaxFrecuency string    `json:"gpuMaxFrecuency,omitempty"`
+	GPUMaxFrequency string    `json:"gpuMaxFrequency,omitempty"`
 	GPURAMMemory    string    `json:"gpuRAMMemory,omitempty"`
-	RAMMemory       string    `json:"RAMMemory,omitempty"`
+	RAMMemory       int64     `json:"RAMMemory,omitempty"`
 	Storage         []Storage `json:"storage,omitempty"`
 }
 
-type DynamicMetrics struct { //TODO: separate in []CPU?, []GPU
-	CPUFrecuency         string         `json:"cpuFrecuency,omitempty"`
-	CPUTemperature       float64        `json:"cpuTemperature,omitempty"`
-	CPUEnergyConsumption float64        `json:"cpuEnergyConsumption,omitempty"`
-	GPUFrecuency         string         `json:"gpuFrecuency,omitempty"`
-	GPUTemperature       float64        `json:"gpuTemperature,omitempty"`
-	GPUEnergyConsumption float64        `json:"gpuEnergyConsumption,omitempty"`
-	RAMUsage             string         `json:"ramUsage,omitempty"`
-	NetworkUsage         []NetworkUsage `json:"networkUsage,omitempty"`
+type DynamicMetrics struct {
+	UpTime               float64          `json:"upTime,omitempty"`
+	CPUFrequency         string           `json:"cpuFrequency,omitempty"`
+	CPUTemperature       float64          `json:"cpuTemperature,omitempty"`
+	CPUEnergyConsumption float64          `json:"cpuEnergyConsumption,omitempty"`
+	GPUFrequency         string           `json:"gpuFrequency,omitempty"`
+	GPUTemperature       float64          `json:"gpuTemperature,omitempty"`
+	GPUEnergyConsumption float64          `json:"gpuEnergyConsumption,omitempty"`
+	FreeRAM              int64            `json:"freeRAM,omitempty"`
+	Storage              AvailableStorage `json:"availableStorage,omitempty"`
+	//NetworkUsage         NetworkUsage     `json:"networkUsage,omitempty"`
 }
 
-type Storage struct { //TODO: complete
+type Device struct {
+	Name   string `json:"name,omitempty"`
+	Type   string `json:"type,omitempty"`
+	Status string `json:"status,omitempty"`
+	Path   string `json:"path,omitempty"`
 }
 
-type NetworkUsage struct { //TODO: complete
+type Storage struct {
+	Name     string  `json:"name,omitempty"`
+	Type     string  `json:"type,omitempty"`
+	Capacity float64 `json:"capacity,omitempty"`
+}
 
+type AvailableStorage struct {
+	Name string  `json:"name,omitempty"`
+	Free float64 `json:"free,omitempty"`
+}
+
+type Network struct {
+	ConnectivityType string               `json:"connectivityType,omitempty"`
+	Latency          float64              `json:"latency,omitempty"`
+	IPAddress        string               `json:"ipAddress,omitempty"`
+	IPGateway        string               `json:"ipGateway,omitempty"`
+	Interfaces       map[string]Interface `json:"interfaces,omitempty"`
+}
+
+type Interface struct {
+	Name          float64 `json:"name,omitempty"`
+	Type          string  `json:"type,omitempty"`
+	Speed         float64 `json:"speed,omitempty"`
+	IP            string  `json:"ip,omitempty"`
+	SubnetMask    string  `json:"subnetMask,omitempty"`
+	IngressUssage string  `json:"ingressUssage,omitempty"`
+	EngressUssage string  `json:"engressUssage,omitempty"`
 }
 
 type API struct {
@@ -99,4 +158,11 @@ type API struct {
 
 type ServiceLevelAgreement struct { //TODO: complete
 	Name string `json:"name,omitempty"`
+}
+
+type NuvlaNode struct {
+	Id           string `json:"id,omitempty"`
+	IcosAgentId  string `json:"icos_agent_id,omitempty"`
+	HostName     string `json:"host_name,omitempty"`
+	IcosHostName string `json:"icos_host_name,omitempty"`
 }

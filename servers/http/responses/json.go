@@ -13,34 +13,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package models_icos
+package responses
 
 import (
-	"bytes"
 	"encoding/json"
-	"testing"
+	"fmt"
+	"net/http"
 )
 
-func TestControler(t *testing.T) {
-
-	want := []byte(`{"type":"MetaOrchestrator","name":"ICOS1","location":{"name":"BCN"},"serviceLevelAgreement":{},"API":{}}`)
-
-	c := Controller{Type: "MetaOrchestrator",
-		Name:     "ICOS1",
-		Location: Location{Name: "BCN"},
-	}
-
-	got, err := json.Marshal(c)
-
+func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
+	w.WriteHeader(statusCode)
+	err := json.NewEncoder(w).Encode(data)
 	if err != nil {
-		t.Error(err)
-	} else {
-		t.Log(string(got))
-		t.Log(string(want))
+		fmt.Fprintf(w, "%s", err.Error())
 	}
+}
 
-	if bytes.Compare(want, got) != 0 {
-		t.Errorf("Controller model error")
+func ERROR(w http.ResponseWriter, statusCode int, err error) {
+	if err != nil {
+		JSON(w, statusCode, struct {
+			Error string `json:"error"`
+		}{
+			Error: err.Error(),
+		})
+		return
 	}
-
+	JSON(w, http.StatusBadRequest, nil)
 }
