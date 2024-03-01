@@ -52,3 +52,9 @@ curl localhost:8080
 ```bash
 export GRPC_PORT=8181 && go run test/protobuf/cognifog/server_client.go 
 ```
+
+# Legal
+The Aggregator is released under the Apache 2.0 license.
+Copyright © 2022-2024 Bull SAS. All rights reserved.
+
+🇪🇺 This work has received funding from the European Union's HORIZON research and innovation programme under grant agreement No. 101070177.
