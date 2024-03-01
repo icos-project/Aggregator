@@ -8,4 +8,4 @@ include:
 
 variables:
   PH_HELM_CHART_FOLDER: aggregator-chart
-  PH_HELM_PRE_RELEASES_BRANCH: icos/develop
+  PH_HELM_PRE_RELEASES_BRANCH_SLUG: icos-develop
