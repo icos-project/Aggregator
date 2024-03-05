@@ -84,12 +84,13 @@ func queryPrometheus() Infrastructure {
 		cluster_type := "kubernetes"
 		node_id := string(node.Metric["icos_host_id"])
 		node_name := string(node.Metric["nodename"])
+		icos_host_name := string(node.Metric["icos_host_name"])
 		architecture := string(node.Metric["machine"])
 		latitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_latitude"]), 8)
 		longitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_longitude"]), 8)
 
 		if cluster_id != "self" {
-			if isNuvlaCluster(cluster_id, node_name, nuvlaNodes) {
+			if isNuvlaCluster(cluster_id, icos_host_name, nuvlaNodes) {
 				cluster_id = "nuvla"
 				cluster_type = "nuvla"
 			}
@@ -415,6 +416,24 @@ func queryPrometheus() Infrastructure {
 			if node.Name != key_n {
 				cluster.Node[node.Name] = node
 				delete(cluster.Node, key_n)
+			}
+		}
+
+		// Nuvla nodes (after node renaming)
+		if cluster.Type == "nuvla" {
+			for key_n, node := range cluster.Node {
+				if node.Type == "nuvla" {
+					// replace in nodes:
+					//   clusters[cluster_id].Node[icos_host_name] ==> key_n (icos_host_name)
+					//
+					// with:
+					//   clusters[cluster_id].Node[id] ==> key_n (id from 'nuvla_device_info' query)
+					id_nuvla_node := getNuvlaNodeId(key_n, nuvlaNodes)
+					if len(id_nuvla_node) > 0 {
+						cluster.Node[id_nuvla_node] = node
+						delete(cluster.Node, key_n)
+					}
+				}
 			}
 		}
 

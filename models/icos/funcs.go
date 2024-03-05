@@ -20,18 +20,18 @@ import (
 	"math"
 )
 
-// check if 'cluster_id' and 'node_name' from 'node_uname_info' query correspond to a Nuvla node / cluster
-func isNuvlaCluster(cluster_id string, node_name string, nuvlaNodes map[string]NuvlaNode) bool {
+// check if 'cluster_id' and 'icos_host_name' from 'node_uname_info' query correspond to a Nuvla node / cluster
+func isNuvlaCluster(cluster_id string, icos_host_name string, nuvlaNodes map[string]NuvlaNode) bool {
 
 	// Example:
 	// - cluster_id=""
-	// - node_name="icos-uc2-test-001"
+	// - icos_host_name="icos-uc2-test-001"
 	// - icos_host_name="icos-uc2-test-001"
 	// - NuvlaNode.icos_host_name="icos-uc2-test-001"
 	// ==>  NuvlaNode[i].IcosHostName == node_name / icos_host_name ==> nuvla
 	if cluster_id == "" {
 		for _, n := range nuvlaNodes {
-			if n.IcosHostName == node_name {
+			if n.IcosHostName == icos_host_name {
 				return true
 			}
 		}
@@ -100,4 +100,16 @@ func checkClusterPodContainer(cluster string, pod string, container string, clus
 	}
 
 	return existsCluster && existsPod && existsContainer
+}
+
+// get Id from nuvla node using the icos_host_name value
+func getNuvlaNodeId(icos_host_name string, nuvlaNodes map[string]NuvlaNode) string {
+
+	for _, n := range nuvlaNodes {
+		if n.IcosHostName == icos_host_name {
+			return n.Id
+		}
+	}
+
+	return "" // NOT FOUND / already deleted
 }
