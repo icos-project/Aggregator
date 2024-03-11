@@ -160,9 +160,12 @@ type ServiceLevelAgreement struct { //TODO: complete
 	Name string `json:"name,omitempty"`
 }
 
-type NuvlaNode struct {
-	Id           string `json:"id,omitempty"`
-	IcosAgentId  string `json:"icos_agent_id,omitempty"`
-	HostName     string `json:"host_name,omitempty"`
-	IcosHostName string `json:"icos_host_name,omitempty"`
+type OrchInfoNode struct {
+	Id            string `json:"id,omitempty"`
+	Type          string `json:"type,omitempty"` // "ocm" or "nuvla"
+	Name          string `json:"agent_name,omitempty"`
+	Uuid          string `json:"agent_id,omitempty"`
+	K8sClusterUid string `json:"k8s_cluster_uid,omitempty"` // OCM
+	IcosHostName  string `json:"icos_host_name,omitempty"`  // Nuvla
+	K8sNodeName   string `json:"k8s_node_name,omitempty"`
 }

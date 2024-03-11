@@ -18,27 +18,8 @@ package models_icos
 import (
 	"fmt"
 	"math"
+	"strings"
 )
-
-// check if 'cluster_id' and 'icos_host_name' from 'node_uname_info' query correspond to a Nuvla node / cluster
-func isNuvlaCluster(cluster_id string, icos_host_name string, nuvlaNodes map[string]NuvlaNode) bool {
-
-	// Example:
-	// - cluster_id=""
-	// - icos_host_name="icos-uc2-test-001"
-	// - icos_host_name="icos-uc2-test-001"
-	// - NuvlaNode.icos_host_name="icos-uc2-test-001"
-	// ==>  NuvlaNode[i].IcosHostName == node_name / icos_host_name ==> nuvla
-	if cluster_id == "" {
-		for _, n := range nuvlaNodes {
-			if n.IcosHostName == icos_host_name {
-				return true
-			}
-		}
-	}
-
-	return false
-}
 
 func maxInt64(list []int64) int64 {
 	max := int64(math.Inf(-1))
@@ -102,10 +83,43 @@ func checkClusterPodContainer(cluster string, pod string, container string, clus
 	return existsCluster && existsPod && existsContainer
 }
 
-// get Id from nuvla node using the icos_host_name value
-func getNuvlaNodeId(icos_host_name string, nuvlaNodes map[string]NuvlaNode) string {
+// NUVLA and OCM clusters / nodes
 
-	for _, n := range nuvlaNodes {
+// check if 'cluster_id' and 'icos_host_name' from 'node_uname_info' query correspond to a Nuvla node / cluster
+func isNuvlaCluster(cluster_id string, icos_host_name string, orchs map[string]OrchInfoNode) bool {
+
+	// Example:
+	// - cluster_id=""
+	// - icos_host_name="icos-uc2-test-001"
+	// - OrchInfoNode.icos_host_name="icos-uc2-test-001"
+	// ==>  OrchInfoNode[i].IcosHostName == icos_host_name ==> nuvla
+	if cluster_id == "" {
+		for _, n := range orchs {
+			if n.Type == strings.ToLower("nuvla") && n.IcosHostName == icos_host_name {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// check if 'k8s_cluster_uid' from 'node_uname_info' query correspond to an OCM node / cluster
+func isOCMCluster(k8s_cluster_uid string, orchs map[string]OrchInfoNode) bool {
+
+	for _, n := range orchs {
+		if n.Type == strings.ToLower("ocm") && n.K8sClusterUid == k8s_cluster_uid {
+			return true
+		}
+	}
+
+	return false
+}
+
+// get Id from nuvla node using the icos_host_name value
+func getNuvlaNodeId(icos_host_name string, orchs map[string]OrchInfoNode) string {
+
+	for _, n := range orchs {
 		if n.IcosHostName == icos_host_name {
 			return n.Id
 		}
