@@ -42,7 +42,8 @@ func GetInfra() []byte {
 func queryPrometheus() Infrastructure {
 
 	var clusters = map[string]Cluster{}
-	var nuvlaNodes = map[string]NuvlaNode{}
+	//var nuvlaNodes = map[string]NuvlaNode{}
+	var orchs = map[string]OrchInfoNode{}
 
 	// Timestamps
 	q := querier.PromQLQuery{
@@ -56,21 +57,24 @@ func queryPrometheus() Infrastructure {
 		}
 	}
 
-	// Nuvla nodes: nuvla_device_info
+	// clusters: tlum_orch_info
 	q = querier.PromQLQuery{
-		Metric: "nuvla_device_info",
+		Metric: "tlum_orch_info",
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
-		nuvla_node_id := string(node.Metric["id"])
+		orch_id := string(node.Metric["agent_id"])
 
-		var newNuvlaNode = NuvlaNode{
-			Id:           nuvla_node_id,
-			IcosAgentId:  string(node.Metric["icos_agent_id"]),
-			HostName:     string(node.Metric["host_name"]),
-			IcosHostName: string(node.Metric["icos_host_name"]),
+		var orchInfo = OrchInfoNode{
+			Id:            orch_id,
+			Type:          string(node.Metric["type"]),
+			Name:          string(node.Metric["agent_name"]),
+			Uuid:          string(node.Metric["agent_id"]),
+			K8sClusterUid: string(node.Metric["k8s_cluster_uid"]), // OCM
+			IcosHostName:  string(node.Metric["icos_host_name"]),  // Nuvla
+			K8sNodeName:   string(node.Metric["k8s_node_name"]),
 		}
-		nuvlaNodes[nuvla_node_id] = newNuvlaNode
+		orchs[orch_id] = orchInfo
 	}
 
 	// Clusters and Nodes
@@ -81,7 +85,7 @@ func queryPrometheus() Infrastructure {
 	for _, node := range querier.Query(q.String()) {
 
 		cluster_id := string(node.Metric["k8s_cluster_uid"])
-		cluster_type := "kubernetes"
+		cluster_type := ""
 		node_id := string(node.Metric["icos_host_id"])
 		node_name := string(node.Metric["nodename"])
 		icos_host_name := string(node.Metric["icos_host_name"])
@@ -90,9 +94,13 @@ func queryPrometheus() Infrastructure {
 		longitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_longitude"]), 8)
 
 		if cluster_id != "self" {
-			if isNuvlaCluster(cluster_id, icos_host_name, nuvlaNodes) {
+			if isNuvlaCluster(cluster_id, icos_host_name, orchs) {
 				cluster_id = "nuvla"
 				cluster_type = "nuvla"
+			}
+
+			if isOCMCluster(cluster_id, orchs) {
+				cluster_type = "ocm"
 			}
 
 			if _, exists := clusters[cluster_id]; !exists {
@@ -235,7 +243,7 @@ func queryPrometheus() Infrastructure {
 		node_name := string(node.Metric["icos_host_name"])
 		ram := int64(node.Value)
 
-		if isNuvlaCluster(cluster_id, node_name, nuvlaNodes) {
+		if isNuvlaCluster(cluster_id, node_name, orchs) {
 			cluster_id = "nuvla"
 		}
 
@@ -272,7 +280,7 @@ func queryPrometheus() Infrastructure {
 			device_status = "available"
 		}
 
-		if isNuvlaCluster(cluster_id, node_name, nuvlaNodes) {
+		if isNuvlaCluster(cluster_id, node_name, orchs) {
 			cluster_id = "nuvla"
 		}
 
@@ -300,7 +308,7 @@ func queryPrometheus() Infrastructure {
 		pod_name := string(pod.Metric["pod"])
 		pod_ip := string(pod.Metric["pod_ip"])
 
-		if isNuvlaCluster(cluster_id, host_name, nuvlaNodes) {
+		if isNuvlaCluster(cluster_id, host_name, orchs) {
 			cluster_id = "nuvla"
 		}
 
@@ -383,7 +391,7 @@ func queryPrometheus() Infrastructure {
 		node_name := string(container.Metric["icos_host_name"])
 		value := container.Value
 
-		if isNuvlaCluster(cluster_id, node_name, nuvlaNodes) {
+		if isNuvlaCluster(cluster_id, node_name, orchs) {
 			cluster_id = "nuvla"
 		}
 
@@ -428,7 +436,7 @@ func queryPrometheus() Infrastructure {
 					//
 					// with:
 					//   clusters[cluster_id].Node[id] ==> key_n (id from 'nuvla_device_info' query)
-					id_nuvla_node := getNuvlaNodeId(key_n, nuvlaNodes)
+					id_nuvla_node := getNuvlaNodeId(key_n, orchs)
 					if len(id_nuvla_node) > 0 {
 						cluster.Node[id_nuvla_node] = node
 						delete(cluster.Node, key_n)
