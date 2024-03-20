@@ -32,6 +32,8 @@ Infrastrcuture:
             Uuid: #DONE
             Name: #DONE
             Location: #DONE
+            Vulnerabilities: #DONE
+            ScaScore: #DONE
                 ...
             StaticMetrics:
                 CPUArchitecture: #DONE

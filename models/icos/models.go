@@ -79,13 +79,16 @@ type Location struct {
 }
 
 type Node struct {
-	Type           string            `json:"type,omitempty"`
-	Uuid           string            `json:"uuid,omitempty"`
-	Name           string            `json:"name,omitempty"`
-	Location       Location          `json:"location,omitempty"`
-	StaticMetrics  StaticMetrics     `json:"staticMetrics,omitempty"`
-	DynamicMetrics DynamicMetrics    `json:"dynamicMetrics,omitempty"`
-	Devices        map[string]Device `json:"devices,omitempty"`
+	Type            string            `json:"type,omitempty"`
+	Uuid            string            `json:"uuid,omitempty"`
+	Name            string            `json:"name,omitempty"`
+	NetHostName     string            `json:"-"` //`json:"netHostName,omitempty"`
+	Location        Location          `json:"location,omitempty"`
+	Vulnerabilities map[string]int32  `json:"vulnerabilities,omitempty"`
+	ScaScore        int32             `json:"ScaScore,omitempty"`
+	StaticMetrics   StaticMetrics     `json:"staticMetrics,omitempty"`
+	DynamicMetrics  DynamicMetrics    `json:"dynamicMetrics,omitempty"`
+	Devices         map[string]Device `json:"devices,omitempty"`
 }
 
 type StaticMetrics struct {

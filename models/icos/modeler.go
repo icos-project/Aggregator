@@ -88,6 +88,7 @@ func queryPrometheus() Infrastructure {
 		cluster_type := ""
 		node_id := string(node.Metric["icos_host_id"])
 		node_name := string(node.Metric["nodename"])
+		net_host_name := string(node.Metric["net_host_name"])
 		icos_host_name := string(node.Metric["icos_host_name"])
 		architecture := string(node.Metric["machine"])
 		latitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_latitude"]), 8)
@@ -114,9 +115,10 @@ func queryPrometheus() Infrastructure {
 			}
 
 			newNode := Node{
-				Uuid: node_id,
-				Type: cluster_type,
-				Name: node_name,
+				Uuid:        node_id,
+				Type:        cluster_type,
+				Name:        node_name,
+				NetHostName: net_host_name,
 				Location: Location{
 					Latitude:  latitude,
 					Longitude: longitude,
@@ -125,6 +127,61 @@ func queryPrometheus() Infrastructure {
 				Devices:       map[string]Device{},
 			}
 			clusters[cluster_id].Node[node_id] = newNode
+		}
+	}
+
+	// Cluster - Node - vulnerabilities and SCA_score
+	//   node_uname_info > net_host_name="10.150.0.144", nodename="icosedge"
+	//					 ==> Node.NetHostName = net_host_name (NEW), Node.Name = nodename
+	//   SCA_score       > agent_hostname="icosedge", agent_ip="10.150.0.144"
+	//   vulnerabilities > agent_hostname="icosedge", agent_ip="10.150.0.144"
+	//					 ==> Node.NetHostName == agent_ip && Node.Name == agent_hostname
+
+	// Cluster - Node - SCA_score
+	q = querier.PromQLQuery{
+		Metric: "SCA_score",
+		Params: map[string]string{}}
+
+	for _, res := range querier.Query(q.String()) {
+		agent_hostname := string(res.Metric["agent_hostname"])
+		agent_ip := string(res.Metric["agent_ip"])
+		scaScoreValue := int32(res.Value)
+
+		for _, c := range clusters {
+			for _, n := range c.Node {
+				if n.NetHostName == agent_ip && n.Name == agent_hostname {
+					n := clusters[c.Uuid].Node[n.Uuid]
+					n.ScaScore = scaScoreValue
+					clusters[c.Uuid].Node[n.Uuid] = n
+				}
+			}
+		}
+	}
+
+	// Cluster - Node - vulnerabilities
+	q = querier.PromQLQuery{
+		Metric: "vulnerabilities",
+		Params: map[string]string{}}
+
+	for _, res := range querier.Query(q.String()) {
+		agent_hostname := string(res.Metric["agent_hostname"])
+		agent_ip := string(res.Metric["agent_ip"])
+		vulnerabilitySeverity := string(res.Metric["severity"])
+		vulnerabilityValue := int32(res.Value)
+
+		for _, c := range clusters {
+			for _, n := range c.Node {
+				if n.NetHostName == agent_ip && n.Name == agent_hostname {
+					n := clusters[c.Uuid].Node[n.Uuid]
+
+					if len(n.Vulnerabilities) == 0 {
+						n.Vulnerabilities = make(map[string]int32, 10)
+					}
+
+					n.Vulnerabilities[vulnerabilitySeverity] = vulnerabilityValue
+					clusters[c.Uuid].Node[n.Uuid] = n
+				}
+			}
 		}
 	}
 
