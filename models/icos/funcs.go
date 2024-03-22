@@ -93,11 +93,9 @@ func isNuvlaCluster(cluster_id string, icos_host_name string, orchs map[string]O
 	// - icos_host_name="icos-uc2-test-001"
 	// - OrchInfoNode.icos_host_name="icos-uc2-test-001"
 	// ==>  OrchInfoNode[i].IcosHostName == icos_host_name ==> nuvla
-	if cluster_id == "" {
-		for _, n := range orchs {
-			if n.Type == strings.ToLower("nuvla") && n.IcosHostName == icos_host_name {
-				return true
-			}
+	for _, n := range orchs {
+		if n.Type == strings.ToLower("nuvla") && n.IcosHostName == icos_host_name {
+			return true
 		}
 	}
 
