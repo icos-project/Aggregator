@@ -42,8 +42,8 @@ func queryPrometheus() map[string]Cluster {
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
-		cluster_id := string(node.Metric["k8s_cluster_uid"]) // Not implemented
-		node_id := string(node.Metric["cognifog_host_id"])   // Not implemented
+		cluster_id := string(node.Metric["cluster"])
+		node_id := string(node.Metric["node"])
 		architecture := string(node.Metric["machine"])
 
 		if _, exists := clusters[cluster_id]; !exists {
@@ -69,8 +69,8 @@ func queryPrometheus() map[string]Cluster {
 
 	for _, result := range querier.Query(q.String()) {
 
-		node_id := string(result.Metric["cognifog_host_id"])   // Not implemented
-		cluster_id := string(result.Metric["k8s_cluster_uid"]) // Not implemented
+		node_id := string(result.Metric["node"])
+		cluster_id := string(result.Metric["cluster"])
 
 		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) {
 			node := clusters[cluster_id].Nodes[node_id]
@@ -86,8 +86,8 @@ func queryPrometheus() map[string]Cluster {
 
 	for _, result := range querier.Query(q.String()) {
 
-		node_id := string(result.Metric["cognifog_host_id"])   // Not implemented
-		cluster_id := string(result.Metric["k8s_cluster_uid"]) // Not implemented
+		node_id := string(result.Metric["node"])
+		cluster_id := string(result.Metric["cluster"])
 
 		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) {
 			node := clusters[cluster_id].Nodes[node_id]

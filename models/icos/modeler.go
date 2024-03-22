@@ -77,6 +77,8 @@ func queryPrometheus() Infrastructure {
 		orchs[orch_id] = orchInfo
 	}
 
+	//fmt.Println("orchs: ", orchs)
+
 	// Clusters and Nodes
 	q = querier.PromQLQuery{
 		Metric: "node_uname_info",
