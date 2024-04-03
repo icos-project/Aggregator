@@ -102,6 +102,17 @@ func isNuvlaCluster(cluster_id string, icos_host_name string, orchs map[string]O
 	return false
 }
 
+func getNuvlaClusterName(icos_host_name string, orchs map[string]OrchInfoNode) string {
+
+	for _, n := range orchs {
+		if n.Type == strings.ToLower("nuvla") && n.IcosHostName == icos_host_name {
+			return n.Name
+		}
+	}
+
+	return ""
+}
+
 // check if 'k8s_cluster_uid' from 'node_uname_info' query correspond to an OCM node / cluster
 func isOCMCluster(k8s_cluster_uid string, orchs map[string]OrchInfoNode) bool {
 
