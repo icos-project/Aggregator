@@ -303,7 +303,8 @@ func queryPrometheus() Infrastructure {
 		ram := int64(node.Value)
 
 		if isNuvlaCluster(cluster_id, node_name, orchs) {
-			cluster_id = "nuvla"
+			//cluster_id = "nuvla"
+			cluster_id = getNuvlaClusterName(node_name, orchs)
 		}
 
 		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) {
@@ -340,7 +341,8 @@ func queryPrometheus() Infrastructure {
 		}
 
 		if isNuvlaCluster(cluster_id, node_name, orchs) {
-			cluster_id = "nuvla"
+			//cluster_id = "nuvla"
+			cluster_id = getNuvlaClusterName(node_name, orchs)
 		}
 
 		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) {
@@ -368,7 +370,8 @@ func queryPrometheus() Infrastructure {
 		pod_ip := string(pod.Metric["pod_ip"])
 
 		if isNuvlaCluster(cluster_id, host_name, orchs) {
-			cluster_id = "nuvla"
+			//cluster_id = "nuvla"
+			cluster_id = getNuvlaClusterName(host_name, orchs)
 		}
 
 		if checkCluster(cluster_id, clusters, q.Metric) {
@@ -451,7 +454,8 @@ func queryPrometheus() Infrastructure {
 		value := container.Value
 
 		if isNuvlaCluster(cluster_id, node_name, orchs) {
-			cluster_id = "nuvla"
+			//cluster_id = "nuvla"
+			cluster_id = getNuvlaClusterName(node_name, orchs)
 		}
 
 		if checkClusterPodContainer(cluster_id, pod_name, cont_name, clusters, q.Metric) {
