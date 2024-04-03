@@ -68,7 +68,7 @@ func queryPrometheus() Infrastructure {
 		var orchInfo = OrchInfoNode{
 			Id:            orch_id,
 			Type:          string(node.Metric["type"]),
-			Name:          string(node.Metric["agent_name"]),
+			Name:          string(node.Metric["agent_name"]), // Nuvla cluster
 			Uuid:          string(node.Metric["agent_id"]),
 			K8sClusterUid: string(node.Metric["k8s_cluster_uid"]), // OCM
 			IcosHostName:  string(node.Metric["icos_host_name"]),  // Nuvla
@@ -98,7 +98,7 @@ func queryPrometheus() Infrastructure {
 
 		if cluster_id != "self" {
 			if isNuvlaCluster(cluster_id, icos_host_name, orchs) {
-				cluster_id = "nuvla"
+				cluster_id = getNuvlaClusterName(icos_host_name, orchs) //"nuvla"
 				cluster_type = "nuvla"
 			}
 
