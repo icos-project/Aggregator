@@ -46,7 +46,6 @@ type Cluster struct {
 	ServiceLevelAgreement ServiceLevelAgreement `json:"serviceLevelAgreement,omitempty"`
 	API                   API                   `json:"API,omitempty"`
 	Node                  map[string]Node       `json:"node,omitempty"`
-	Network               Network               `json:"network,omitempty"`
 	Pod                   map[string]Pod        `json:"pod,omitempty"`
 	Any                   any                   `json:"any,omitempty"`
 }
@@ -79,16 +78,17 @@ type Location struct {
 }
 
 type Node struct {
-	Type            string            `json:"type,omitempty"`
-	Uuid            string            `json:"uuid,omitempty"`
-	Name            string            `json:"name,omitempty"`
-	NetHostName     string            `json:"-"` //`json:"netHostName,omitempty"`
-	Location        Location          `json:"location,omitempty"`
-	Vulnerabilities map[string]int32  `json:"vulnerabilities,omitempty"`
-	ScaScore        int32             `json:"ScaScore,omitempty"`
-	StaticMetrics   StaticMetrics     `json:"staticMetrics,omitempty"`
-	DynamicMetrics  DynamicMetrics    `json:"dynamicMetrics,omitempty"`
-	Devices         map[string]Device `json:"devices,omitempty"`
+	Type              string               `json:"type,omitempty"`
+	Uuid              string               `json:"uuid,omitempty"`
+	Name              string               `json:"name,omitempty"`
+	NetHostName       string               `json:"-"` //`json:"netHostName,omitempty"`
+	Location          Location             `json:"location,omitempty"`
+	Vulnerabilities   map[string]int32     `json:"vulnerabilities,omitempty"`
+	ScaScore          int32                `json:"ScaScore,omitempty"`
+	StaticMetrics     StaticMetrics        `json:"staticMetrics,omitempty"`
+	DynamicMetrics    DynamicMetrics       `json:"dynamicMetrics,omitempty"`
+	NetworkInterfaces map[string]Interface `json:"networkInterfaces,omitempty"`
+	Devices           map[string]Device    `json:"devices,omitempty"`
 }
 
 type StaticMetrics struct {
@@ -133,22 +133,15 @@ type AvailableStorage struct {
 	Free float64 `json:"free,omitempty"`
 }
 
-type Network struct {
-	ConnectivityType string               `json:"connectivityType,omitempty"`
-	Latency          float64              `json:"latency,omitempty"`
-	IPAddress        string               `json:"ipAddress,omitempty"`
-	IPGateway        string               `json:"ipGateway,omitempty"`
-	Interfaces       map[string]Interface `json:"interfaces,omitempty"`
-}
-
 type Interface struct {
-	Name          float64 `json:"name,omitempty"`
-	Type          string  `json:"type,omitempty"`
-	Speed         float64 `json:"speed,omitempty"`
-	IP            string  `json:"ip,omitempty"`
-	SubnetMask    string  `json:"subnetMask,omitempty"`
-	IngressUssage string  `json:"ingressUssage,omitempty"`
-	EngressUssage string  `json:"engressUssage,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Type          string `json:"type,omitempty"`
+	Speed         int64  `json:"speed,omitempty"`
+	IP            string `json:"ip,omitempty"`
+	Status        string `json:"status,omitempty"`
+	SubnetMask    string `json:"subnetMask,omitempty"`
+	IngressUssage string `json:"ingressUssage,omitempty"`
+	EngressUssage string `json:"engressUssage,omitempty"`
 }
 
 type API struct {

@@ -42,7 +42,6 @@ func GetInfra() []byte {
 func queryPrometheus() Infrastructure {
 
 	var clusters = map[string]Cluster{}
-	//var nuvlaNodes = map[string]NuvlaNode{}
 	var orchs = map[string]OrchInfoNode{}
 
 	// Timestamps
@@ -77,8 +76,6 @@ func queryPrometheus() Infrastructure {
 		orchs[orch_id] = orchInfo
 	}
 
-	//fmt.Println("orchs: ", orchs)
-
 	// Clusters and Nodes
 	q = querier.PromQLQuery{
 		Metric: "node_uname_info",
@@ -98,7 +95,7 @@ func queryPrometheus() Infrastructure {
 
 		if cluster_id != "self" {
 			if isNuvlaCluster(cluster_id, icos_host_name, orchs) {
-				cluster_id = getNuvlaClusterName(icos_host_name, orchs) //"nuvla"
+				cluster_id = getNuvlaClusterName(icos_host_name, orchs)
 				cluster_type = "nuvla"
 			}
 
@@ -125,8 +122,9 @@ func queryPrometheus() Infrastructure {
 					Latitude:  latitude,
 					Longitude: longitude,
 				},
-				StaticMetrics: StaticMetrics{CPUArchitecture: architecture},
-				Devices:       map[string]Device{},
+				StaticMetrics:     StaticMetrics{CPUArchitecture: architecture},
+				NetworkInterfaces: map[string]Interface{},
+				Devices:           map[string]Device{},
 			}
 			clusters[cluster_id].Node[node_id] = newNode
 		}
@@ -303,7 +301,6 @@ func queryPrometheus() Infrastructure {
 		ram := int64(node.Value)
 
 		if isNuvlaCluster(cluster_id, node_name, orchs) {
-			//cluster_id = "nuvla"
 			cluster_id = getNuvlaClusterName(node_name, orchs)
 		}
 
@@ -315,6 +312,10 @@ func queryPrometheus() Infrastructure {
 			}
 		}
 	}
+
+	// Get Network interfaces and add them to infra
+	fmt.Println(">> get Network interfaces and add them to infrastructure")
+	processNetworkInterfaces(clusters, orchs)
 
 	// Cluster - Node - Devices
 	q = querier.PromQLQuery{
@@ -341,7 +342,6 @@ func queryPrometheus() Infrastructure {
 		}
 
 		if isNuvlaCluster(cluster_id, node_name, orchs) {
-			//cluster_id = "nuvla"
 			cluster_id = getNuvlaClusterName(node_name, orchs)
 		}
 

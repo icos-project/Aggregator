@@ -25,9 +25,13 @@ import (
 
 func main() {
 
+	fmt.Println("Starting Aggregator [v1.0] ...")
+
 	// Get ports
 	http_port := os.Getenv("HTTP_PORT")
 	grpc_port := os.Getenv("GRPC_PORT")
+
+	fmt.Println("Using PROMETHEUS_ADDRESS: " + os.Getenv("PROMETHEUS_ADDRESS"))
 
 	var wg sync.WaitGroup
 
