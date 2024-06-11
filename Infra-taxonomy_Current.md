@@ -60,6 +60,15 @@ Infrastrcuture:
                     Name:
                     Free:
                 Network_usage: # ??
+            NetworkInterfaces[]
+                Interface_name: #DONE
+                Interface_type: #DONE
+                Interface_speed: #DONE
+                Interface_IP: #DONE
+                Interface_status: #DONE
+                Interface_subnet_mask: #DONE
+                Interface_ingress_usage:
+                Interface_egress_usage: 
             Device[]
                 Name: #DONE
                 Type: #DONE
@@ -70,19 +79,6 @@ Infrastrcuture:
                     DataFormat:
                     Authentication:
                     Authorization:
-        Network:
-            Connectivity_type:
-            Latency:
-            IP_address:
-            IP_gateway:
-            Interfaces[]
-                Interface_name:
-                Interface_type:
-                Interface_speed:
-                Interface_IP:
-                Interface_subnet_mask:
-                Interface_ingress_usage:
-                Interface_egress_usage:
         Pod[]
             Name: #DONE
             IP:
