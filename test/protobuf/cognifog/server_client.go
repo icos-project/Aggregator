@@ -29,7 +29,7 @@ import (
 
 func main() {
 
-	addr := "localhost:" + getenv("GRPC_PORT", "8181") // GRPC_PORT is defined in other instance so here is currently empty
+	addr := getenv("AGGR_ADDRESS", "localhost") + ":" + getenv("GRPC_PORT", "8181") // GRPC_PORT is defined in other instance so here is currently empty
 
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
