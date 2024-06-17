@@ -50,5 +50,5 @@ curl localhost:8080
   
 #### Connecting to the aggregator with gRPC server (via Cognifog client test file):
 ```bash
-export GRPC_PORT=8181 && go run test/protobuf/cognifog/server_client.go 
+export AGGR_ADDRESS=localhost && export GRPC_PORT=8182 && go run test/protobuf/cognifog/server_client.go 
 ```
