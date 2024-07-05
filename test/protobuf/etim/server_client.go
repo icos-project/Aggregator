@@ -21,7 +21,7 @@ import (
 	"os"
 	"time"
 
-	pb "aggregator/servers/protobuf/cognifog"
+	pb "aggregator/servers/protobuf/etim"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

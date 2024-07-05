@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,17 +24,17 @@ import (
 	"strconv"
 	"sync"
 
-	md "aggregator/models/cognifog"
-	pb "aggregator/servers/protobuf/cognifog"
+	md "aggregator/models/etim"
+	pb "aggregator/servers/protobuf/etim"
 
 	"google.golang.org/grpc"
 )
 
-type server_cognifog struct {
+type server_etim struct {
 	pb.UnimplementedAggregatorServer
 }
 
-func (s *server_cognifog) ConnectToQuerier(ctx context.Context, in *pb.Empty) (*pb.InfrastructureModel, error) {
+func (s *server_etim) ConnectToQuerier(ctx context.Context, in *pb.Empty) (*pb.InfrastructureModel, error) {
 	return md.GetInfra(), nil
 }
 
@@ -57,8 +57,8 @@ func CreateServer(wg *sync.WaitGroup, project string, port string) {
 	s := grpc.NewServer()
 
 	switch project {
-	case "cognifog":
-		pb.RegisterAggregatorServer(s, &server_cognifog{})
+	case "etim":
+		pb.RegisterAggregatorServer(s, &server_etim{})
 	default:
 		fmt.Printf("Project '%s' not found\n", project)
 		os.Exit(1)
