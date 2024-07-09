@@ -4,6 +4,11 @@
 
 Aggregator service provides a simple way to query information about a multi-cluster system. It launches a server that, when connected, returns available data about clusters and their states.
 
+## Interfaces documentation
+
+### HTTP
+Topology information and infrastructure data is served via HTTP following the data structure defined in the Swagger documentation located at [./docs](./docs).
+
 ## Modules
 ### Server
 Two different servers are implemented: HTTP and gRPC. They listen on the provided port passed as enviroment variable and call the models module every time a client request is received. It is possible to choose among any of them to be launched or to start both at the same time.
@@ -50,7 +55,7 @@ curl localhost:8080
   
 #### Connecting to the aggregator with gRPC server (via ETIM client test file):
 ```bash
-export GRPC_PORT=8181 && go run test/protobuf/etim/server_client.go 
+export AGGR_ADDRESS=localhost && export GRPC_PORT=8182 && go run test/protobuf/etim/server_client.go 
 ```
 
 # Legal
