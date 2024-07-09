@@ -1,0 +1,284 @@
+basePath: /
+definitions:
+  models_icos.API:
+    properties:
+      authentication:
+        type: string
+      authorization:
+        type: string
+      commProtocol:
+        type: string
+      dataFormat:
+        type: string
+      protocolVersion:
+        type: string
+    type: object
+  models_icos.AvailableStorage:
+    properties:
+      free:
+        type: number
+      name:
+        type: string
+    type: object
+  models_icos.Cluster:
+    properties:
+      API:
+        $ref: '#/definitions/models_icos.API'
+      any: {}
+      name:
+        type: string
+      node:
+        additionalProperties:
+          $ref: '#/definitions/models_icos.Node'
+        type: object
+      pod:
+        additionalProperties:
+          $ref: '#/definitions/models_icos.Pod'
+        type: object
+      serviceLevelAgreement:
+        $ref: '#/definitions/models_icos.ServiceLevelAgreement'
+      type:
+        type: string
+      uuid:
+        type: string
+    type: object
+  models_icos.Container:
+    properties:
+      containerMemory:
+        type: string
+      cpuUsage:
+        type: number
+      ip:
+        type: string
+      name:
+        type: string
+      node:
+        type: string
+      port:
+        type: string
+    type: object
+  models_icos.Controller:
+    properties:
+      API:
+        $ref: '#/definitions/models_icos.API'
+      any: {}
+      location:
+        $ref: '#/definitions/models_icos.Location'
+      name:
+        type: string
+      serviceLevelAgreement:
+        $ref: '#/definitions/models_icos.ServiceLevelAgreement'
+      type:
+        type: string
+    type: object
+  models_icos.Device:
+    properties:
+      name:
+        type: string
+      path:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+    type: object
+  models_icos.DynamicMetrics:
+    properties:
+      availableStorage:
+        $ref: '#/definitions/models_icos.AvailableStorage'
+      cpuEnergyConsumption:
+        type: number
+      cpuFrequency:
+        type: string
+      cpuTemperature:
+        type: number
+      freeRAM:
+        type: integer
+      gpuEnergyConsumption:
+        type: number
+      gpuFrequency:
+        type: string
+      gpuTemperature:
+        type: number
+      upTime:
+        type: number
+    type: object
+  models_icos.Infrastructure:
+    properties:
+      cluster:
+        additionalProperties:
+          $ref: '#/definitions/models_icos.Cluster'
+        type: object
+      controller:
+        additionalProperties:
+          $ref: '#/definitions/models_icos.Controller'
+        type: object
+      timestamp:
+        $ref: '#/definitions/models_icos.Timestamp'
+    type: object
+  models_icos.Interface:
+    properties:
+      engressUssage:
+        type: string
+      ingressUssage:
+        type: string
+      ip:
+        type: string
+      name:
+        type: string
+      speed:
+        type: integer
+      status:
+        type: string
+      subnetMask:
+        type: string
+      type:
+        type: string
+    type: object
+  models_icos.Location:
+    properties:
+      city:
+        type: string
+      continent:
+        type: string
+      country:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+    type: object
+  models_icos.Node:
+    properties:
+      ScaScore:
+        type: integer
+      devices:
+        additionalProperties:
+          $ref: '#/definitions/models_icos.Device'
+        type: object
+      dynamicMetrics:
+        $ref: '#/definitions/models_icos.DynamicMetrics'
+      location:
+        $ref: '#/definitions/models_icos.Location'
+      name:
+        type: string
+      networkInterfaces:
+        additionalProperties:
+          $ref: '#/definitions/models_icos.Interface'
+        type: object
+      staticMetrics:
+        $ref: '#/definitions/models_icos.StaticMetrics'
+      type:
+        type: string
+      uuid:
+        type: string
+      vulnerabilities:
+        additionalProperties:
+          type: integer
+        type: object
+    type: object
+  models_icos.Pod:
+    properties:
+      container:
+        additionalProperties:
+          $ref: '#/definitions/models_icos.Container'
+        type: object
+      ip:
+        type: string
+      name:
+        type: string
+      numberOfApps:
+        type: integer
+      numberOfContainers:
+        type: integer
+      status:
+        type: string
+    type: object
+  models_icos.ServiceLevelAgreement:
+    properties:
+      name:
+        type: string
+    type: object
+  models_icos.StaticMetrics:
+    properties:
+      RAMMemory:
+        type: integer
+      cpuArchitecture:
+        type: string
+      cpuCores:
+        type: integer
+      cpuMaxFrequency:
+        type: integer
+      gpuCores:
+        type: number
+      gpuMaxFrequency:
+        type: string
+      gpuRAMMemory:
+        type: string
+      storage:
+        items:
+          $ref: '#/definitions/models_icos.Storage'
+        type: array
+    type: object
+  models_icos.Storage:
+    properties:
+      capacity:
+        type: number
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  models_icos.Timestamp:
+    properties:
+      oldestTimestamp:
+        type: number
+      timeSinceOldest:
+        type: number
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Aggregator Microservice.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Aggregator API
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: get clusters state
+      parameters:
+      - description: Authentication header
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            $ref: '#/definitions/models_icos.Infrastructure'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: get clusters state
+securityDefinitions:
+  OAuth 2.0:
+    type: basic
+swagger: "2.0"

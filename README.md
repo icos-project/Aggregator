@@ -4,6 +4,11 @@
 
 Aggregator service provides a simple way to query information about a multi-cluster system. It launches a server that, when connected, returns available data about clusters and their states.
 
+## Interfaces documentation
+
+### HTTP
+Topology information and infrastructure data is served via HTTP following the data structure defined in the Swagger documentation located at [./docs](./docs).
+
 ## Modules
 ### Server
 Two different servers are implemented: HTTP and gRPC. They listen on the provided port passed as enviroment variable and call the models module every time a client request is received. It is possible to choose among any of them to be launched or to start both at the same time.
