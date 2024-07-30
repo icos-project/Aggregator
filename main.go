@@ -45,7 +45,7 @@ import (
 
 func main() {
 
-	fmt.Println("Starting Aggregator [v1.0] ...")
+	fmt.Println("Starting Aggregator [v1.2.6] [2024.07.30] ...")
 
 	// Get ports
 	http_port := os.Getenv("HTTP_PORT")
@@ -71,7 +71,7 @@ func main() {
 	if grpc_port != "" {
 		fmt.Println("Starting gRPC server...")
 		wg.Add(1)
-		go protobuf.CreateServer(&wg, "etim", grpc_port)
+		go protobuf.CreateServer(&wg, "cognifog", grpc_port)
 	}
 
 	wg.Wait()

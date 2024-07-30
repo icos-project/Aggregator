@@ -76,6 +76,34 @@ func queryPrometheus() Infrastructure {
 		orchs[orch_id] = orchInfo
 	}
 
+	// clusters: tlum_runtime_info
+	/*q = querier.PromQLQuery{
+		Metric: "tlum_runtime_info",
+		Params: map[string]string{}}
+
+	for _, node := range querier.Query(q.String()) {
+		engine := string(node.Metric["type"])
+		icos_host_name := string(node.Metric["icos_host_name"])
+		k8s_cluster_uid := string(node.Metric["k8s_cluster_uid"])
+
+		for _, o := range orchs {
+			if o.IcosHostName == icos_host_name || o.K8sClusterUid == k8s_cluster_uid {
+
+				// First we get a "copy" of the entry
+				if entry, ok := orchs[o.Id]; ok {
+
+					// Then we modify the copy
+					entry.Engine = engine
+
+					// Then we reassign map entry
+					orchs[o.Id] = entry
+				}
+
+			}
+		}
+
+	}*/
+
 	// Clusters and Nodes
 	q = querier.PromQLQuery{
 		Metric: "node_uname_info",
@@ -85,6 +113,7 @@ func queryPrometheus() Infrastructure {
 
 		cluster_id := string(node.Metric["k8s_cluster_uid"])
 		cluster_type := ""
+		//engine := ""
 		node_id := string(node.Metric["icos_host_id"])
 		node_name := string(node.Metric["nodename"])
 		net_host_name := string(node.Metric["net_host_name"])
@@ -97,36 +126,42 @@ func queryPrometheus() Infrastructure {
 			if isNuvlaCluster(cluster_id, icos_host_name, orchs) {
 				cluster_id = getNuvlaClusterName(icos_host_name, orchs)
 				cluster_type = "nuvla"
-			}
-
-			if isOCMCluster(cluster_id, orchs) {
+			} else if isOCMCluster(cluster_id, orchs) {
 				cluster_type = "ocm"
 			}
 
-			if _, exists := clusters[cluster_id]; !exists {
-				var newCluster = Cluster{
-					Uuid: cluster_id,
-					Type: cluster_type,
-					Node: map[string]Node{},
-					Pod:  map[string]Pod{},
+			fmt.Println("INFO - [node_uname_info] [cluster_id:", cluster_id, "] [icos_host_name:", icos_host_name, "] [cluster_type:", cluster_type, "]")
+
+			if cluster_type != "" {
+				if _, exists := clusters[cluster_id]; !exists {
+					var newCluster = Cluster{
+						Uuid: cluster_id,
+						Type: cluster_type,
+						//Engine: engine,
+						Node: map[string]Node{},
+						Pod:  map[string]Pod{},
+					}
+					clusters[cluster_id] = newCluster
 				}
-				clusters[cluster_id] = newCluster
+
+				newNode := Node{
+					Uuid:        node_id,
+					Type:        cluster_type,
+					Name:        node_name,
+					NetHostName: net_host_name,
+					Location: Location{
+						Latitude:  latitude,
+						Longitude: longitude,
+					},
+					StaticMetrics:     StaticMetrics{CPUArchitecture: architecture},
+					NetworkInterfaces: map[string]Interface{},
+					Devices:           map[string]Device{},
+				}
+				clusters[cluster_id].Node[node_id] = newNode
+			} else {
+				fmt.Println("WARN - Unknown cluster type [cluster_id:", cluster_id, "]. Cluster not added to infraestructure.")
 			}
 
-			newNode := Node{
-				Uuid:        node_id,
-				Type:        cluster_type,
-				Name:        node_name,
-				NetHostName: net_host_name,
-				Location: Location{
-					Latitude:  latitude,
-					Longitude: longitude,
-				},
-				StaticMetrics:     StaticMetrics{CPUArchitecture: architecture},
-				NetworkInterfaces: map[string]Interface{},
-				Devices:           map[string]Device{},
-			}
-			clusters[cluster_id].Node[node_id] = newNode
 		}
 	}
 
