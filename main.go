@@ -45,7 +45,7 @@ import (
 
 func main() {
 
-	fmt.Println("Starting Aggregator [v1.0] ...")
+	fmt.Println("Starting Aggregator [v1.2.6] [2024.07.30] ...")
 
 	// Get ports
 	http_port := os.Getenv("HTTP_PORT")

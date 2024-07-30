@@ -94,6 +94,11 @@ func isNuvlaCluster(cluster_id string, icos_host_name string, orchs map[string]O
 	// - OrchInfoNode.icos_host_name="icos-uc2-test-001"
 	// ==>  OrchInfoNode[i].IcosHostName == icos_host_name ==> nuvla
 	for _, n := range orchs {
+		if icos_host_name == "" {
+			fmt.Println("WARN - 'icos_host_name' value is empty [icos_host_name:", icos_host_name, "]")
+			return false
+		}
+
 		if n.Type == strings.ToLower("nuvla") && n.IcosHostName == icos_host_name {
 			return true
 		}
@@ -117,6 +122,11 @@ func getNuvlaClusterName(icos_host_name string, orchs map[string]OrchInfoNode) s
 func isOCMCluster(k8s_cluster_uid string, orchs map[string]OrchInfoNode) bool {
 
 	for _, n := range orchs {
+		if k8s_cluster_uid == "" {
+			fmt.Println("WARN - 'k8s_cluster_uid' value is empty [k8s_cluster_uid:", k8s_cluster_uid, "]")
+			return false
+		}
+
 		if n.Type == strings.ToLower("ocm") && n.K8sClusterUid == k8s_cluster_uid {
 			return true
 		}
