@@ -1,0 +1,100 @@
+```yaml
+Controller:Controller[]
+  Type:
+  Name:
+  Location:
+    Name:
+    Continent:
+    Country:
+    City:
+    GPS_latitude:
+    GPS_longitude:
+  ServiceLevelAgreement: <not sure if state SLA here or at Agent level>
+  API:
+    ICOS_version:
+  Any[]:
+
+Agent:Cluster[]
+  Type:
+  Name:
+  Location:
+    ...
+  ServiceLevelAgreement: <not sure if state SLA here or at Agent level>
+  API:
+  Node[]
+    Type:
+    Name:
+    Static_metrics:
+      CPU_cores:
+      CPU_clock_speed:
+      GPU_cores:
+      GPU_clock_speed:
+      GPU_memory:
+      RAM:
+      Storage[]
+        Name:
+        Type:
+        Capacity:
+    Dinamyc_metrics:
+      CPUFrecuency:
+      RAM_usage:
+      Storage[]
+        Name:
+        Free:
+      Uptime:
+      CPU_temperature:
+      GPU_temperature:
+      CPU_energy_consumption:
+      GPU_energy_consumption:
+      Network_usage:
+      ....
+      Devices []
+        Type: <i.e. Video_camera or Display or Temperature>
+        Name:
+        Status:
+        Any[]:
+          Resolution:
+          EngUnits:
+          MinScale:
+          MaxScale:
+          TouchScreen:
+          ....
+        Network:
+          ResponseType:
+          Latency:
+          Bandwidth: 
+        API:
+          Communication_protocol:
+          Any[]:
+            Protocol_version:
+            Data_format:
+            Authentication:
+            Authorization:
+  Network:
+    Connectivity_type:
+    Latency:
+    IP_address:
+    IP_gateway:
+    Interfaces[]
+      Interface_name:
+      Interface_type:
+      Interface_speed:
+      Interface_IP:
+      Interface_subnet_mask:
+      Interface_ingress_usage:
+      Interface_egress_usage:
+  Location:
+    ...
+  Security / Trust:
+  Deployment:
+    Status: <Desired state/Actual state>
+    Number of containers:
+    Number of apps:
+    Containers[]
+      Container_name:
+      Container_ports[]
+        Port:
+      Container_memory_usage:
+      Container_cpu_usage:
+      Container_IP:  
+```

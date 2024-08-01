@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aggregator
+  labels:
+    app: aggregator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aggregator
+  template:
+    metadata:
+      labels:
+        app: aggregator
+    spec:
+      containers:
+      - name: aggregator
+        image: registry.atosresearch.eu:18484/icos-monitoring-aggregator:develop
+        env:
+        - name: PROMETHEUS_ADDRESS
+          value: "http://thanos.192.168.137.200.nip.io/"
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+      - name: nexus-credentials

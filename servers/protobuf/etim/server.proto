@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+option go_package = "servers/protobuf/etim/";
+
+package server_proto;
+
+
+service Aggregator  {
+  rpc ConnectToQuerier (Empty) returns (InfrastructureModel);
+}
+
+message Empty {}
+
+message ComputeResources {
+  // compute capacity in milliCPU, matches what Kubernetes uses.
+  int32 milliCPU = 1; 
+
+  // RAM in Bytes, matches what Kubernetes uses internally.
+  int64 memoryInBytes = 2;
+
+  // Other resource types (GPU, real-time CPU, storage) can be
+  // added here.
+}
+
+message InfrastructureModel {
+
+  message Node {
+    enum NodeType {
+      COMPUTE = 0; // default value if not set
+      NETWORK = 1;
+    }
+
+    string id = 1;
+    // Can be compute node or network node.
+    NodeType node_type = 2;
+
+    // CPU Architecture
+    string cpu_architecture = 3;
+
+    // These are the total resources in the node.
+    // The resource fields are empty for Network nodes.
+    ComputeResources resources = 4;
+
+    // These are the resources on the node that are available to allocate.
+    ComputeResources available_resources = 5;
+
+    // Nodes can be labelled to indicate capabilities, architecture,
+    // maybe the security zone.
+    repeated string labels = 6;
+  }
+
+  repeated Node nodes = 1;
+}
