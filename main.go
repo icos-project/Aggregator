@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Bull SAS
+Copyright © 2022-2024 EVIDEN
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import (
 
 func main() {
 
-	fmt.Println("Starting Aggregator [v1.2.6] [2024.07.30] ...")
+	fmt.Println("Starting Aggregator [v1.2.5] [2024.07.30] ...")
 
 	// Get ports
 	http_port := os.Getenv("HTTP_PORT")
