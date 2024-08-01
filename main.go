@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Bull SAS
+Copyright © 2022-2024 EVIDEN
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ func main() {
 	if grpc_port != "" {
 		fmt.Println("Starting gRPC server...")
 		wg.Add(1)
-		go protobuf.CreateServer(&wg, "cognifog", grpc_port)
+		go protobuf.CreateServer(&wg, "etim", grpc_port)
 	}
 
 	wg.Wait()
