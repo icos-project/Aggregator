@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,9 @@ limitations under the License.
 package querier
 
 import (
+	log "aggregator/common/logs"
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -28,6 +28,9 @@ import (
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 )
+
+// path used in logs
+const pathLOG string = "AGGREGATOR > QUERIER > "
 
 type PromQLQuery struct {
 	Metric string
@@ -55,7 +58,7 @@ func Query(query string) model.Vector {
 		Address: os.Getenv("PROMETHEUS_ADDRESS"),
 	})
 	if err != nil {
-		fmt.Printf("Error creating client: %v\n", err)
+		log.Error(pathLOG+"Error creating client: ", err)
 	}
 
 	// create prometheus API object
@@ -64,10 +67,10 @@ func Query(query string) model.Vector {
 	defer cancel()
 	result, warnings, err := v1api.Query(ctx, query, time.Now(), v1.WithTimeout(5*time.Second))
 	if err != nil {
-		fmt.Printf("Error querying Prometheus: %v\n", err)
+		log.Error(pathLOG+"Error querying Prometheus: ", err)
 	}
 	if len(warnings) > 0 {
-		fmt.Printf("Warnings: %v\n", warnings)
+		log.Warn(pathLOG+"Warnings: ", warnings)
 	}
 
 	// match the response to vector and print the response values
@@ -75,13 +78,15 @@ func Query(query string) model.Vector {
 	case model.Vector:
 
 		if r.Len() == 0 {
-			fmt.Printf("PromQL Query Result length is zero: %s\n", query)
+			log.Warn(pathLOG+"PromQL Query Result length is zero: ", query)
 		}
 
 		return r
 
 	default:
-		panic(errors.New("not implemented"))
+		log.Error(pathLOG+"Error with the response: ", errors.New("not implemented"))
+		return nil
+		//panic(errors.New("not implemented"))
 	}
 }
 

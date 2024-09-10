@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Bull SAS
+Copyright © 2022-2024 EVIDEN
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ limitations under the License.
 package main
 
 import (
+	log "aggregator/common/logs"
 	http "aggregator/servers/http"
 	protobuf "aggregator/servers/protobuf"
-	"fmt"
 	"os"
 	"sync"
 )
@@ -43,15 +43,18 @@ import (
 // @externalDocs.description	OpenAPI
 // @externalDocs.url			https://swagger.io/resources/open-api/
 
+// path used in logs
+const pathLOG string = "AGGREGATOR > "
+
 func main() {
 
-	fmt.Println("Starting Aggregator [v1.2.6] [2024.07.30] ...")
+	log.Info(pathLOG + "Starting Aggregator [v1.2.6] [2024.09.06] ...")
 
 	// Get ports
 	http_port := os.Getenv("HTTP_PORT")
 	grpc_port := os.Getenv("GRPC_PORT")
 
-	fmt.Println("Using PROMETHEUS_ADDRESS: " + os.Getenv("PROMETHEUS_ADDRESS"))
+	log.Info(pathLOG + "Using PROMETHEUS_ADDRESS: " + os.Getenv("PROMETHEUS_ADDRESS"))
 
 	var wg sync.WaitGroup
 
@@ -62,14 +65,14 @@ func main() {
 
 	// Launch HTTP server
 	if http_port != "" {
-		fmt.Println("Starting HTTP server...")
+		log.Info("Starting HTTP server...")
 		wg.Add(1)
 		go http.CreateServer(&wg, "icos", http_port)
 	}
 
 	// Launch gRPC server
 	if grpc_port != "" {
-		fmt.Println("Starting gRPC server...")
+		log.Info("Starting gRPC server...")
 		wg.Add(1)
 		go protobuf.CreateServer(&wg, "cognifog", grpc_port)
 	}

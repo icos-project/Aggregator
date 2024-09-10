@@ -17,13 +17,12 @@ package server_http
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"sync"
 
+	log "aggregator/common/logs"
 	m_icos "aggregator/models/icos"
 	responses "aggregator/servers/http/responses"
 	mid "aggregator/servers/middlewares"
@@ -46,16 +45,16 @@ func CreateServer(wg *sync.WaitGroup, project string, port string) {
 
 	_, err := strconv.Atoi(port)
 	if err != nil {
-		log.Fatalf("Invalid port: %v", err)
+		log.Fatal("Invalid port: ", err)
 	}
 
-	fmt.Printf("server listening on :%s\n", port)
+	log.Info("server listening on: " + port)
 	err = http.ListenAndServe((":" + port), nil)
 
 	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Printf("server closed\n")
+		log.Warn("server closed\n")
 	} else if err != nil {
-		fmt.Printf("error starting server: %s\n", err)
+		log.Error("error starting server: ", err)
 		os.Exit(1)
 	}
 
@@ -82,7 +81,7 @@ func connectToQuerier(project string) http.HandlerFunc {
 		case "icos":
 			querierData = m_icos.GetInfra()
 		default:
-			fmt.Printf("Project '%s' not found\n", project)
+			log.Info("Project" + project + "not found")
 			os.Exit(1)
 		}
 
