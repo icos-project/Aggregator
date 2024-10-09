@@ -5,13 +5,13 @@
 replicaCount: 1
 
 image:
-  repository: registry.atosresearch.eu:18484/icos-monitoring-aggregator
+  repository: registry.atosresearch.eu:18516/aggregator
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "develop"
 
 imagePullSecrets: 
-  - name: nexusicossecret
+  - name: nexusedgeharbor
 nameOverride: ""
 fullnameOverride: ""
 
@@ -42,7 +42,8 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 8080
+  httpPort: ""
+  grpcPort: ""
 
 ingress:
   enabled: false

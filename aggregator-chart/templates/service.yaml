@@ -7,12 +7,23 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    {{- if .Values.service.httpPort }}
+    - port: {{ .Values.service.httpPort }}
       targetPort: http
       protocol: TCP
       name: http
       {{- if and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort)) }}
       nodePort: {{ .Values.service.nodePort }}
       {{- end }}
+    {{- end }}
+    {{- if .Values.service.grpcPort }}
+    - port: {{ .Values.service.grpcPort }}
+      targetPort: grpc
+      protocol: TCP
+      name: grpc
+      {{- if and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort)) }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+    {{- end }}
   selector:
     {{- include "aggregator.selectorLabels" . | nindent 4 }}
