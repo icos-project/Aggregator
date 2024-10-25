@@ -16,9 +16,9 @@ limitations under the License.
 package models_etim
 
 import (
+	log "aggregator/common/logs"
 	"aggregator/querier"
 	pb "aggregator/servers/protobuf/etim"
-	"fmt"
 )
 
 func GetInfra() *pb.InfrastructureModel {
@@ -135,9 +135,9 @@ func checkClusterNode(cluster string, node string, clusters map[string]Cluster, 
 	_, existsNode := clusters[cluster].Nodes[node]
 
 	if !existsCluster {
-		fmt.Println("Unknown cluster ", cluster, ". Error in metric: ", metric)
+		log.Info("Unknown cluster " + cluster + ". Error in metric: " + metric)
 	} else if !existsNode {
-		fmt.Println("Unknown node ", node, " in cluster ", cluster, ". Error in metric: ", metric)
+		log.Info("Unknown node" + node + " in cluster " + cluster + ". Error in metric: " + metric)
 	}
 
 	return existsCluster && existsNode

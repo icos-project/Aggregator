@@ -24,6 +24,8 @@ Infrastrcuture:
         Type: #DONE
         Uuid: #DONE
         Name: #DONE
+        Engine: #DONE
+        ICOSAgentID: #DONE
         ServiceLevelAgreement:
         API:
             ...
@@ -56,6 +58,7 @@ Infrastrcuture:
                 GPUTemperature:
                 GPUEnergyConsumption:
                 FreeRAM: Bytes #DONE
+                UsedRAM: Bytes #DONE
                 Storage[]
                     Name:
                     Free:

@@ -41,12 +41,26 @@ spec:
             value: {{ tpl .Values.aggregator.prometheus . }}
           - name: KEY
             value: {{ tpl .Values.aggregator.keycloakPublicKey . }}
-          - name: AGGREGATOR_PORT
-            value: "{{ .Values.service.port }}"
+          {{- if .Values.service.httpPort }}
+          - name: HTTP_PORT
+            value: "{{ .Values.service.httpPort }}"
+          {{- end }}
+          {{- if .Values.service.grpcPort }}
+          - name: GRPC_PORT
+            value: "{{ .Values.service.grpcPort }}"
+          {{- end }}
           ports:
+            {{- if .Values.service.httpPort }}
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.service.httpPort }}
               protocol: TCP
+            {{- end }}
+            {{- if .Values.service.grpcPort }}
+            - name: grpc
+              containerPort: {{ .Values.service.grpcPort }}
+              protocol: TCP
+            {{- end }}
+          {{- if .Values.service.httpPort }}
           livenessProbe:
             httpGet:
               path: /healthz
@@ -55,6 +69,7 @@ spec:
             httpGet:
               path: /healthz
               port: http
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}

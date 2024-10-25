@@ -40,7 +40,8 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 8080
+  httpPort: ""
+  grpcPort: ""
 
 ingress:
   enabled: false

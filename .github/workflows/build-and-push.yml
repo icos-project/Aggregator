@@ -16,19 +16,16 @@ on:
 
 env:
   # Needed for the target repo in nexus
-  # SNS_REGISTRY_COMMON: registry.atosresearch.eu:18467
-  # Needed for the dockerfile base image
-  TMT_REGISTRY_COMMON: registry.atosresearch.eu:18488
-  # Needed for the target repo in nexus
-  ETIM_REGISTRY_ICOS: registry.atosresearch.eu:18484
-  IMAGE_NAME: icos-monitoring-aggregator
-
+  ETIM_REGISTRY_EDGEHARBOR: registry.atosresearch.eu:18516
+  IMAGE_NAME: edgeharbor/aggregator
+  TAG_NAME:  latest
+  
 jobs:
   build_and_push_image:
     name: Build Docker Image
     runs-on: [self-hosted]
-    outputs:
-      tag: ${{ steps.get_tag.outputs.tag }}
+    # outputs:
+    #   tag: {{ steps.get_tag.outputs.tag }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -38,23 +35,17 @@ jobs:
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Decide the tag of the image
-        id: get_tag
-        # Only 3 tags in nexus (cicd, shared for all developers with an open PR), main and develop
-        # TODO: would be nice to have PR-specific version and delete them after some time or similar
-        shell: bash
-        run: |
-          echo "::set-output name=tag::$(([ ${{ github.ref_name }} == 'main' ] || [ ${{ github.ref_name }} == 'develop' ]) && echo "${{ github.ref_name }}" || echo "cicd")"
+      # - name: Decide the tag of the image
+      #   id: get_tag
+      #   # Only 3 tags in nexus (cicd, shared for all developers with an open PR), main and develop
+      #   # TODO: would be nice to have PR-specific version and delete them after some time or similar
+      #   shell: bash
+      #   run: |
+      #     echo "::set-output name=tag::$(([ {{ github.ref_name }} == 'main' ] || [ {{ github.ref_name }} == 'develop' ]) && echo "{{ github.ref_name }}" || echo "cicd")"
       - name: Login to Nexus ETIM
         uses: docker/login-action@v2
         with:
-          registry: https://${{ env.ETIM_REGISTRY_ICOS }}
-          username: ${{ secrets.NEXUS_USER }}
-          password: ${{ secrets.NEXUS_PAT }}
-      - name: Login to Nexus TMT
-        uses: docker/login-action@v2
-        with:
-          registry: https://${{ env.TMT_REGISTRY_COMMON }}
+          registry: https://${{ env.ETIM_REGISTRY_EDGEHARBOR }}
           username: ${{ secrets.NEXUS_USER }}
           password: ${{ secrets.NEXUS_PAT }}
       - name: Build and push
@@ -62,12 +53,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.ETIM_REGISTRY_ICOS }}/${{ env.IMAGE_NAME }}:${{ steps.get_tag.outputs.tag }}
+          tags: ${{ env.ETIM_REGISTRY_EDGEHARBOR}}/${{ env.IMAGE_NAME }}:${{ env.TAG_NAME }} #{{ steps.get_tag.outputs.tag }}
           file: Dockerfile
-          #network: host
-          # Used to download ETSN common python libraries
-          # TODO: refactor to GH when ready
-          # build-args: |
-            # USER_NAME=${{ secrets.GL_USER }}
-            # USER_PASSWORD=${{ secrets.GL_PAT }}
-# Pending to add tests and publish job

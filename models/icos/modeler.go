@@ -16,24 +16,28 @@ limitations under the License.
 package models_icos
 
 import (
+	log "aggregator/common/logs"
 	"aggregator/querier"
 	"encoding/json"
-	"fmt"
 	"math"
 	"strconv"
 	"strings"
 	"time"
 )
 
+// path used in logs
+const pathLOG string = "AGGREGATOR > MODELS > ICOS > "
+
 func GetInfra() []byte {
 
 	// Get metrics from Thanos
+	log.Info(pathLOG + "> > > > > > Getting metrics from Thanos ...")
 	clusters := queryPrometheus()
 
 	// Convert to JSON
 	json, err := json.MarshalIndent(clusters, "", "\t")
 	if err != nil {
-		fmt.Printf("Error marshaling models: %v\n", err)
+		log.Error("Error marshaling models: ", err)
 	}
 
 	return json
@@ -45,6 +49,7 @@ func queryPrometheus() Infrastructure {
 	var orchs = map[string]OrchInfoNode{}
 
 	// Timestamps
+	log.Debug(pathLOG + "QUERY: timestamp(up)")
 	q := querier.PromQLQuery{
 		Metric: "timestamp(up)",
 		Params: map[string]string{}}
@@ -57,6 +62,7 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// clusters: tlum_orch_info
+	log.Debug(pathLOG + "QUERY: tlum_orch_info")
 	q = querier.PromQLQuery{
 		Metric: "tlum_orch_info",
 		Params: map[string]string{}}
@@ -68,6 +74,7 @@ func queryPrometheus() Infrastructure {
 			Id:            orch_id,
 			Type:          string(node.Metric["type"]),
 			Name:          string(node.Metric["agent_name"]), // Nuvla cluster
+			Engine:        "unknown",                         // default, may be updated
 			Uuid:          string(node.Metric["agent_id"]),
 			K8sClusterUid: string(node.Metric["k8s_cluster_uid"]), // OCM
 			IcosHostName:  string(node.Metric["icos_host_name"]),  // Nuvla
@@ -77,7 +84,8 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// clusters: tlum_runtime_info
-	/*q = querier.PromQLQuery{
+	log.Debug(pathLOG + "QUERY: tlum_runtime_info")
+	q = querier.PromQLQuery{
 		Metric: "tlum_runtime_info",
 		Params: map[string]string{}}
 
@@ -102,9 +110,10 @@ func queryPrometheus() Infrastructure {
 			}
 		}
 
-	}*/
+	}
 
 	// Clusters and Nodes
+	log.Debug(pathLOG + "QUERY: node_uname_info")
 	q = querier.PromQLQuery{
 		Metric: "node_uname_info",
 		Params: map[string]string{}}
@@ -112,12 +121,12 @@ func queryPrometheus() Infrastructure {
 	for _, node := range querier.Query(q.String()) {
 
 		cluster_id := string(node.Metric["k8s_cluster_uid"])
-		cluster_type := ""
-		//engine := ""
+		cluster_type := "unkown"
 		node_id := string(node.Metric["icos_host_id"])
 		node_name := string(node.Metric["nodename"])
 		net_host_name := string(node.Metric["net_host_name"])
 		icos_host_name := string(node.Metric["icos_host_name"])
+		icos_agent_id := string(node.Metric["icos_agent_id"])
 		architecture := string(node.Metric["machine"])
 		latitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_latitude"]), 8)
 		longitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_longitude"]), 8)
@@ -130,16 +139,19 @@ func queryPrometheus() Infrastructure {
 				cluster_type = "ocm"
 			}
 
-			fmt.Println("INFO - [node_uname_info] [cluster_id:", cluster_id, "] [icos_host_name:", icos_host_name, "] [cluster_type:", cluster_type, "]")
+			engine := getEngine(icos_host_name, cluster_id, orchs)
+
+			log.Trace(pathLOG+"[node_uname_info] [cluster_id:", cluster_id, "] [icos_host_name:", icos_host_name, "] [cluster_type:", cluster_type, "]")
 
 			if cluster_type != "" {
 				if _, exists := clusters[cluster_id]; !exists {
 					var newCluster = Cluster{
-						Uuid: cluster_id,
-						Type: cluster_type,
-						//Engine: engine,
-						Node: map[string]Node{},
-						Pod:  map[string]Pod{},
+						Uuid:        cluster_id,
+						Type:        cluster_type,
+						Engine:      engine,
+						ICOSAgentID: icos_agent_id,
+						Node:        map[string]Node{},
+						Pod:         map[string]Pod{},
 					}
 					clusters[cluster_id] = newCluster
 				}
@@ -159,7 +171,7 @@ func queryPrometheus() Infrastructure {
 				}
 				clusters[cluster_id].Node[node_id] = newNode
 			} else {
-				fmt.Println("WARN - Unknown cluster type [cluster_id:", cluster_id, "]. Cluster not added to infraestructure.")
+				log.Warn(pathLOG+"Unknown cluster type [cluster_id:", cluster_id, "]. Cluster not added to infraestructure.")
 			}
 
 		}
@@ -173,6 +185,7 @@ func queryPrometheus() Infrastructure {
 	//					 ==> Node.NetHostName == agent_ip && Node.Name == agent_hostname
 
 	// Cluster - Node - SCA_score
+	log.Debug(pathLOG + "QUERY: SCA_score")
 	q = querier.PromQLQuery{
 		Metric: "SCA_score",
 		Params: map[string]string{}}
@@ -194,6 +207,7 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// Cluster - Node - vulnerabilities
+	log.Debug(pathLOG + "QUERY: vulnerabilities")
 	q = querier.PromQLQuery{
 		Metric: "vulnerabilities",
 		Params: map[string]string{}}
@@ -221,6 +235,7 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// Cluster - Node - StaticMetrics
+	log.Debug(pathLOG + "QUERY: kube_node_status_capacity{resource='cpu'} * on(icos_agen...")
 	q = querier.PromQLQuery{
 		Metric: "kube_node_status_capacity{resource='cpu'} * on(icos_agent_id, icos_host_name) group_left(icos_host_id) node_uname_info",
 		Params: map[string]string{}}
@@ -239,6 +254,7 @@ func queryPrometheus() Infrastructure {
 		}
 	}
 
+	log.Debug(pathLOG + "QUERY: node_cpu_frequency_max_hertz")
 	q = querier.PromQLQuery{
 		Metric: "node_cpu_frequency_max_hertz",
 		Params: map[string]string{}}
@@ -270,6 +286,7 @@ func queryPrometheus() Infrastructure {
 		clusters[comb[0]].Node[comb[1]] = n
 	}
 
+	log.Debug(pathLOG + "QUERY: kube_node_status_capacity{resource='memory'} * on(...")
 	q = querier.PromQLQuery{
 		Metric: "kube_node_status_capacity{resource='memory'} * on(icos_agent_id, icos_host_name) group_left(icos_host_id) node_uname_info",
 		Params: map[string]string{}}
@@ -289,6 +306,7 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// Cluster - Node - DynamicMetrics
+	log.Debug(pathLOG + "QUERY: node_thermal_zone_temp")
 	q = querier.PromQLQuery{
 		Metric: "node_thermal_zone_temp",
 		Params: map[string]string{}}
@@ -307,6 +325,7 @@ func queryPrometheus() Infrastructure {
 		}
 	}
 
+	log.Debug(pathLOG + "QUERY: scaph_host_energy_microjoules_total * on...")
 	q = querier.PromQLQuery{
 		Metric: "scaph_host_energy_microjoules_total * on(icos_agent_id, icos_host_name) group_left(icos_host_id) node_uname_info",
 		Params: map[string]string{}}
@@ -325,6 +344,7 @@ func queryPrometheus() Infrastructure {
 		}
 	}
 
+	log.Debug(pathLOG + "QUERY: node_memory_MemFree_bytes")
 	q = querier.PromQLQuery{
 		Metric: "node_memory_MemFree_bytes",
 		Params: map[string]string{}}
@@ -343,16 +363,18 @@ func queryPrometheus() Infrastructure {
 			if cluster_id != "self" {
 				n := clusters[cluster_id].Node[node_id]
 				n.DynamicMetrics.FreeRAM = ram
+				n.DynamicMetrics.UsedRAM = n.StaticMetrics.RAMMemory - ram
 				clusters[cluster_id].Node[node_id] = n
 			}
 		}
 	}
 
 	// Get Network interfaces and add them to infra
-	fmt.Println(">> get Network interfaces and add them to infrastructure")
+	log.Debug(pathLOG + "Get Network interfaces and add them to infra")
 	processNetworkInterfaces(clusters, orchs)
 
 	// Cluster - Node - Devices
+	log.Debug(pathLOG + "QUERY: node_mounted")
 	q = querier.PromQLQuery{
 		Metric: "node_mounted",
 		Params: map[string]string{}}
@@ -394,6 +416,7 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// Cluster - Pods
+	log.Debug(pathLOG + "QUERY: kube_pod_info")
 	q = querier.PromQLQuery{
 		Metric: "kube_pod_info",
 		Params: map[string]string{}}
@@ -424,6 +447,7 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// Cluster - Pod - Status
+	log.Debug(pathLOG + "QUERY: kube_pod_status_phase == 1")
 	q = querier.PromQLQuery{
 		Metric: "kube_pod_status_phase == 1",
 		Params: map[string]string{}}
@@ -444,6 +468,7 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// Cluster - Pod - Containers
+	log.Debug(pathLOG + "QUERY: kube_pod_container_info")
 	q = querier.PromQLQuery{
 		Metric: "kube_pod_container_info",
 		Params: map[string]string{}}
@@ -467,6 +492,7 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// Cluster - Pod - Number of containers
+	log.Debug(pathLOG + "Cluster - Pod - Number of containers")
 	for cluster_id := range clusters {
 		for pod_id := range clusters[cluster_id].Pod {
 			pod := clusters[cluster_id].Pod[pod_id]
@@ -476,6 +502,7 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// Cluster - Pod - Container - CPU Usage
+	log.Debug(pathLOG + "QUERY: container_cpu_utilization_ratio")
 	q = querier.PromQLQuery{
 		Metric: "container_cpu_utilization_ratio",
 		Params: map[string]string{}}
@@ -501,6 +528,7 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// Cluster
+	log.Debug(pathLOG + "QUERY: tlum_ocm_agent_info")
 	q = querier.PromQLQuery{
 		Metric: "tlum_ocm_agent_info",
 		Params: map[string]string{}}
@@ -515,6 +543,7 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// Cluster and Node renaming
+	log.Debug(pathLOG + "Cluster and Node renaming")
 	for key_c, cluster := range clusters {
 
 		// Node
