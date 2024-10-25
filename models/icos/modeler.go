@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Bull SAS
+Copyright © 2022-2024 EVIDEN
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -74,6 +74,7 @@ func queryPrometheus() Infrastructure {
 			Id:            orch_id,
 			Type:          string(node.Metric["type"]),
 			Name:          string(node.Metric["agent_name"]), // Nuvla cluster
+			Engine:        "unknown",                         // default, may be updated
 			Uuid:          string(node.Metric["agent_id"]),
 			K8sClusterUid: string(node.Metric["k8s_cluster_uid"]), // OCM
 			IcosHostName:  string(node.Metric["icos_host_name"]),  // Nuvla
@@ -83,7 +84,8 @@ func queryPrometheus() Infrastructure {
 	}
 
 	// clusters: tlum_runtime_info
-	/*q = querier.PromQLQuery{
+	log.Debug(pathLOG + "QUERY: tlum_runtime_info")
+	q = querier.PromQLQuery{
 		Metric: "tlum_runtime_info",
 		Params: map[string]string{}}
 
@@ -108,7 +110,7 @@ func queryPrometheus() Infrastructure {
 			}
 		}
 
-	}*/
+	}
 
 	// Clusters and Nodes
 	log.Debug(pathLOG + "QUERY: node_uname_info")
@@ -119,12 +121,12 @@ func queryPrometheus() Infrastructure {
 	for _, node := range querier.Query(q.String()) {
 
 		cluster_id := string(node.Metric["k8s_cluster_uid"])
-		cluster_type := ""
-		engine := ""
+		cluster_type := "unkown"
 		node_id := string(node.Metric["icos_host_id"])
 		node_name := string(node.Metric["nodename"])
 		net_host_name := string(node.Metric["net_host_name"])
 		icos_host_name := string(node.Metric["icos_host_name"])
+		icos_agent_id := string(node.Metric["icos_agent_id"])
 		architecture := string(node.Metric["machine"])
 		latitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_latitude"]), 8)
 		longitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_longitude"]), 8)
@@ -137,16 +139,19 @@ func queryPrometheus() Infrastructure {
 				cluster_type = "ocm"
 			}
 
+			engine := getEngine(icos_host_name, cluster_id, orchs)
+
 			log.Trace(pathLOG+"[node_uname_info] [cluster_id:", cluster_id, "] [icos_host_name:", icos_host_name, "] [cluster_type:", cluster_type, "]")
 
 			if cluster_type != "" {
 				if _, exists := clusters[cluster_id]; !exists {
 					var newCluster = Cluster{
-						Uuid:   cluster_id,
-						Type:   cluster_type,
-						Engine: engine,
-						Node:   map[string]Node{},
-						Pod:    map[string]Pod{},
+						Uuid:        cluster_id,
+						Type:        cluster_type,
+						Engine:      engine,
+						ICOSAgentID: icos_agent_id,
+						Node:        map[string]Node{},
+						Pod:         map[string]Pod{},
 					}
 					clusters[cluster_id] = newCluster
 				}
@@ -358,6 +363,7 @@ func queryPrometheus() Infrastructure {
 			if cluster_id != "self" {
 				n := clusters[cluster_id].Node[node_id]
 				n.DynamicMetrics.FreeRAM = ram
+				n.DynamicMetrics.UsedRAM = n.StaticMetrics.RAMMemory - ram
 				clusters[cluster_id].Node[node_id] = n
 			}
 		}

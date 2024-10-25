@@ -1,11 +1,11 @@
 /*
-Copyright 2023 Bull SAS
+Copyright © 2022-2024 EVIDEN
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,7 @@ import (
 
 func TestQuery(t *testing.T) {
 
-	os.Setenv("PROMETHEUS_ADDRESS", "http://thanos.192.168.137.200.nip.io/") // thanos-query
+	os.Setenv("PROMETHEUS_ADDRESS", "http://query.192.168.137.175.nip.io/") // thanos-query
 
 	q := PromQLQuery{
 		Metric: "vector(100)",

@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Bull SAS
+Copyright © 2022-2024 EVIDEN
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import (
 	"os"
 	"time"
 
-	pb "aggregator/servers/protobuf/cognifog"
+	pb "aggregator/servers/protobuf/etim"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

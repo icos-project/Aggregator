@@ -74,7 +74,7 @@ func main() {
 	if grpc_port != "" {
 		log.Info("Starting gRPC server...")
 		wg.Add(1)
-		go protobuf.CreateServer(&wg, "cognifog", grpc_port)
+		go protobuf.CreateServer(&wg, "etim", grpc_port)
 	}
 
 	wg.Wait()

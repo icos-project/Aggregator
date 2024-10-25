@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "servers/protobuf/cognifog/";
+option go_package = "servers/protobuf/etim/";
 
 package server_proto;
 

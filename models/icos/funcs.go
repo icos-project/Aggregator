@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Bull SAS
+Copyright © 2022-2024 EVIDEN
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -146,4 +146,15 @@ func getNuvlaNodeId(icos_host_name string, orchs map[string]OrchInfoNode) string
 	}
 
 	return "" // NOT FOUND / already deleted
+}
+
+// get engine from nuvla node using the icos_host_name or cluster_id value
+func getEngine(icos_host_name string, cluster_id string, orchs map[string]OrchInfoNode) string {
+	for _, n := range orchs {
+		if n.IcosHostName == icos_host_name || n.Id == cluster_id {
+			return n.Engine
+		}
+	}
+
+	return "unkown" // NOT FOUND / already deleted
 }

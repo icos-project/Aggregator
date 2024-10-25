@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Bull SAS
+Copyright © 2022-2024 EVIDEN
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package models_cognifog
+package models_etim
 
 import (
 	log "aggregator/common/logs"
 	"aggregator/querier"
-	pb "aggregator/servers/protobuf/cognifog"
+	pb "aggregator/servers/protobuf/etim"
 )
 
 func GetInfra() *pb.InfrastructureModel {

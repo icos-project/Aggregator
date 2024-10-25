@@ -53,7 +53,7 @@ curl localhost:8080
 ```
   
   
-#### Connecting to the aggregator with gRPC server (via Cognifog client test file):
+#### Connecting to the aggregator with gRPC server (via ETIM client test file):
 ```bash
-export AGGR_ADDRESS=localhost && export GRPC_PORT=8182 && go run test/protobuf/cognifog/server_client.go 
+export AGGR_ADDRESS=localhost && export GRPC_PORT=8182 && go run test/protobuf/etim/server_client.go 
 ```

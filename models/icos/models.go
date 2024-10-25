@@ -44,6 +44,7 @@ type Cluster struct {
 	Uuid                  string                `json:"uuid,omitempty"`
 	Name                  string                `json:"name,omitempty"`
 	Engine                string                `json:"engine,omitempty"`
+	ICOSAgentID           string                `json:"icosAgentID,omitempty"`
 	ServiceLevelAgreement ServiceLevelAgreement `json:"serviceLevelAgreement,omitempty"`
 	API                   API                   `json:"API,omitempty"`
 	Node                  map[string]Node       `json:"node,omitempty"`
@@ -112,6 +113,7 @@ type DynamicMetrics struct {
 	GPUTemperature       float64          `json:"gpuTemperature,omitempty"`
 	GPUEnergyConsumption float64          `json:"gpuEnergyConsumption,omitempty"`
 	FreeRAM              int64            `json:"freeRAM,omitempty"`
+	UsedRAM              int64            `json:"usedRAM,omitempty"`
 	Storage              AvailableStorage `json:"availableStorage,omitempty"`
 	//NetworkUsage         NetworkUsage     `json:"networkUsage,omitempty"`
 }
