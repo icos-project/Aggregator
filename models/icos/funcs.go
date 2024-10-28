@@ -156,5 +156,5 @@ func getEngine(icos_host_name string, cluster_id string, orchs map[string]OrchIn
 		}
 	}
 
-	return "unkown" // NOT FOUND / already deleted
+	return "unknown" // NOT FOUND / already deleted
 }

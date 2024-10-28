@@ -83,6 +83,7 @@ type Node struct {
 	Type              string               `json:"type,omitempty"`
 	Uuid              string               `json:"uuid,omitempty"`
 	Name              string               `json:"name,omitempty"`
+	Engine            string               `json:"engine,omitempty"`
 	NetHostName       string               `json:"-"` //`json:"netHostName,omitempty"`
 	Location          Location             `json:"location,omitempty"`
 	Vulnerabilities   map[string]int32     `json:"vulnerabilities,omitempty"`

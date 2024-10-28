@@ -121,7 +121,7 @@ func queryPrometheus() Infrastructure {
 	for _, node := range querier.Query(q.String()) {
 
 		cluster_id := string(node.Metric["k8s_cluster_uid"])
-		cluster_type := "unkown"
+		cluster_type := "unknown"
 		node_id := string(node.Metric["icos_host_id"])
 		node_name := string(node.Metric["nodename"])
 		net_host_name := string(node.Metric["net_host_name"])
@@ -160,6 +160,7 @@ func queryPrometheus() Infrastructure {
 					Uuid:        node_id,
 					Type:        cluster_type,
 					Name:        node_name,
+					Engine:      engine,
 					NetHostName: net_host_name,
 					Location: Location{
 						Latitude:  latitude,

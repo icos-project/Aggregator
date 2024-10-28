@@ -48,7 +48,7 @@ const pathLOG string = "AGGREGATOR > "
 
 func main() {
 
-	log.Info(pathLOG + "Starting Aggregator [v1.2.7] [2024.10.25] ...")
+	log.Info(pathLOG + "Starting Aggregator [v1.2.8] [2024.10.28] ...")
 
 	// Get ports
 	http_port := os.Getenv("HTTP_PORT")
