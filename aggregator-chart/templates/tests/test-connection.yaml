@@ -8,8 +8,16 @@ metadata:
     "helm.sh/hook": test
 spec:
   containers:
-    - name: wget
+    {{- if .Values.service.httpPort }}
+    - name: http-health-check
       image: busybox
       command: ['wget']
-      args: ['{{ include "aggregator.fullname" . }}:{{ .Values.service.port }}/healthz']
+      args: ['{{ include "aggregator.fullname" . }}:{{ .Values.service.httpPort }}/healthz']
+    {{- end }}
+    {{- if .Values.service.grpcPort }}
+    - name: grpc-health-check
+      image: busybox
+      command: ['sh', '-c']
+      args: ['nc -vz {{ include "aggregator.fullname" . }} {{ .Values.service.grpcPort }}']
+    {{- end }}
   restartPolicy: Never
