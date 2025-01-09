@@ -18,12 +18,13 @@ package server_protobuff
 import (
 	context "context"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"strconv"
 	"sync"
 
-	log "aggregator/common/logs"
+	logs "aggregator/common/logs"
 	md "aggregator/models/etim"
 	pb "aggregator/servers/protobuf/etim"
 
@@ -45,13 +46,13 @@ func CreateServer(wg *sync.WaitGroup, project string, port string) {
 	p, err := strconv.Atoi(port)
 
 	if err != nil {
-		log.Fatal("Invalid port: ", err)
+		logs.GetLogger().Fatal("Invalid port: ", err)
 	}
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", p))
 
 	if err != nil {
-		log.Fatal("failed to listen: ", err)
+		logs.GetLogger().Fatal("failed to listen: ", err)
 	}
 
 	s := grpc.NewServer()
@@ -60,14 +61,14 @@ func CreateServer(wg *sync.WaitGroup, project string, port string) {
 	case "etim":
 		pb.RegisterAggregatorServer(s, &server_etim{})
 	default:
-		log.Info("Project" + project + "not found")
+		logs.GetLogger().Info("Project" + project + "not found")
 		os.Exit(1)
 	}
 
 	log.Printf("server listening at %v", lis.Addr())
 
 	if err := s.Serve(lis); err != nil {
-		log.Error("failed to serve: ", err)
+		logs.GetLogger().Error("failed to serve: ", err)
 	}
 
 }

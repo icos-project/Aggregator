@@ -16,7 +16,7 @@ limitations under the License.
 package querier
 
 import (
-	log "aggregator/common/logs"
+	logs "aggregator/common/logs"
 	"context"
 	"errors"
 	"net/http"
@@ -28,9 +28,6 @@ import (
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 )
-
-// path used in logs
-const pathLOG string = "AGGREGATOR > QUERIER > "
 
 type PromQLQuery struct {
 	Metric string
@@ -58,7 +55,7 @@ func Query(query string) model.Vector {
 		Address: os.Getenv("PROMETHEUS_ADDRESS"),
 	})
 	if err != nil {
-		log.Error(pathLOG+"Error creating client: ", err)
+		logs.GetLogger().Error("Error creating client: ", err)
 	}
 
 	// create prometheus API object
@@ -67,10 +64,10 @@ func Query(query string) model.Vector {
 	defer cancel()
 	result, warnings, err := v1api.Query(ctx, query, time.Now(), v1.WithTimeout(5*time.Second))
 	if err != nil {
-		log.Error(pathLOG+"Error querying Prometheus: ", err)
+		logs.GetLogger().Error("Error querying Prometheus: ", err)
 	}
 	if len(warnings) > 0 {
-		log.Warn(pathLOG+"Warnings: ", warnings)
+		logs.GetLogger().Warn("Warnings: ", warnings)
 	}
 
 	// match the response to vector and print the response values
@@ -78,13 +75,13 @@ func Query(query string) model.Vector {
 	case model.Vector:
 
 		if r.Len() == 0 {
-			log.Warn(pathLOG+"PromQL Query Result length is zero: ", query)
+			logs.GetLogger().Warn("PromQL Query Result length is zero: ", query)
 		}
 
 		return r
 
 	default:
-		log.Error(pathLOG+"Error with the response: ", errors.New("not implemented"))
+		logs.GetLogger().Error("Error with the response: ", errors.New("not implemented"))
 		return nil
 		//panic(errors.New("not implemented"))
 	}

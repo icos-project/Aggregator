@@ -48,17 +48,56 @@ type Cluster struct {
 	ServiceLevelAgreement ServiceLevelAgreement `json:"serviceLevelAgreement,omitempty"`
 	API                   API                   `json:"API,omitempty"`
 	Node                  map[string]Node       `json:"node,omitempty"`
-	Pod                   map[string]Pod        `json:"pod,omitempty"`
 	Any                   any                   `json:"any,omitempty"`
 }
 
+func (c Cluster) String() string {
+	return "Uuid: " + c.Uuid + ", Name: " + c.Name + ", Type: " + c.Type
+}
+
+type Node struct {
+	Type              string               `json:"type,omitempty"`
+	Uuid              string               `json:"uuid,omitempty"`
+	Name              string               `json:"name,omitempty"`
+	Engine            string               `json:"engine,omitempty"`
+	NetHostName       string               `json:"-"`
+	IcosHostName      string               `json:"-"` // matches value of 'icos_host_name' in 'kube_pod_info' query
+	K8sNodeUid        string               `json:"-"` // matches value of 'k8s_node_uid' in 'kube_pod_info' query
+	Location          Location             `json:"location,omitempty"`
+	Vulnerabilities   map[string]int32     `json:"vulnerabilities,omitempty"`
+	ScaScore          int32                `json:"ScaScore,omitempty"`
+	StaticMetrics     StaticMetrics        `json:"staticMetrics,omitempty"`
+	DynamicMetrics    DynamicMetrics       `json:"dynamicMetrics,omitempty"`
+	NetworkInterfaces map[string]Interface `json:"networkInterfaces,omitempty"`
+	Devices           map[string]Device    `json:"devices,omitempty"`
+	Pod               map[string]Pod       `json:"pod,omitempty"`
+	//Labels            []Label              `json:"labels,omitempty"`
+	Labels map[string]string `json:"labels,omitempty"`
+}
+
+func (n Node) String() string {
+	return "Uuid: " + n.Uuid + ", Name: " + n.Name + ", Type: " + n.Type + ", IcosHostName: " + n.IcosHostName
+}
+
 type Pod struct {
+	Uid                string               `json:"-"`
+	ParentNodeName     string               `json:"-"`
+	ParentNodeId       string               `json:"-"` // icos_host_id from parent Node
+	ClusterUid         string               `json:"-"` // cluster uid
+	IcosHostName       string               `json:"-"`
+	K8sNodeUid         string               `json:"-"` // matches value of 'k8s_node_uid' in 'kube_pod_info' query
 	Name               string               `json:"name,omitempty"`
 	IP                 string               `json:"ip,omitempty"`
 	Status             string               `json:"status,omitempty"`
 	NumberOfContainers int32                `json:"numberOfContainers,omitempty"`
 	NumberOfApps       int32                `json:"numberOfApps,omitempty"`
 	Container          map[string]Container `json:"container,omitempty"`
+	Workload           map[string]Workload  `json:"workload,omitempty"`
+}
+
+func (p Pod) String() string {
+	return "Uid: " + p.Uid + ", Name: " + p.Name + ", ParentNodeName: " + p.ParentNodeName +
+		", ParentNodeId: " + p.ParentNodeId + ", IcosHostName:" + p.IcosHostName
 }
 
 type Container struct {
@@ -70,6 +109,17 @@ type Container struct {
 	CPUUsage        float64 `json:"cpuUsage,omitempty"`
 }
 
+type Label struct {
+	Key   string `json:"key,omitempty"`
+	Value string `json:"value,omitempty"`
+}
+
+type Workload struct {
+	AppName      string `json:"icos_app_name,omitempty"`
+	AppInstance  string `json:"icos_app_instance,omitempty"`
+	AppComponent string `json:"icos_app_component,omitempty"`
+}
+
 type Location struct {
 	Name      string  `json:"name,omitempty"`
 	Continent string  `json:"continent,omitempty"`
@@ -77,21 +127,6 @@ type Location struct {
 	City      string  `json:"city,omitempty"`
 	Latitude  float64 `json:"latitude,omitempty"`
 	Longitude float64 `json:"longitude,omitempty"`
-}
-
-type Node struct {
-	Type              string               `json:"type,omitempty"`
-	Uuid              string               `json:"uuid,omitempty"`
-	Name              string               `json:"name,omitempty"`
-	Engine            string               `json:"engine,omitempty"`
-	NetHostName       string               `json:"-"` //`json:"netHostName,omitempty"`
-	Location          Location             `json:"location,omitempty"`
-	Vulnerabilities   map[string]int32     `json:"vulnerabilities,omitempty"`
-	ScaScore          int32                `json:"ScaScore,omitempty"`
-	StaticMetrics     StaticMetrics        `json:"staticMetrics,omitempty"`
-	DynamicMetrics    DynamicMetrics       `json:"dynamicMetrics,omitempty"`
-	NetworkInterfaces map[string]Interface `json:"networkInterfaces,omitempty"`
-	Devices           map[string]Device    `json:"devices,omitempty"`
 }
 
 type StaticMetrics struct {

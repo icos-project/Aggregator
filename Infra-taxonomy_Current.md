@@ -36,6 +36,7 @@ Infrastrcuture:
             Location: #DONE
             Vulnerabilities: #DONE
             ScaScore: #DONE
+            Labels[]: #DONE
                 ...
             StaticMetrics:
                 CPUArchitecture: #DONE
@@ -82,18 +83,22 @@ Infrastrcuture:
                     DataFormat:
                     Authentication:
                     Authorization:
-        Pod[]
-            Name: #DONE
-            IP:
-            Status: #DONE
-            NumberOfContainers: #DONE
-            NumberOfApps:
-            Container[]
+            Pod[]
                 Name: #DONE
                 IP:
-                Node: #DONE
-                Port:
-                ContainerMemory:
-                CPUUsage: Percentage #DONE
+                Status: #DONE
+                NumberOfContainers: #DONE
+                NumberOfApps:
+                Container[]
+                    Name: #DONE
+                    IP:
+                    Node: #DONE
+                    Port:
+                    ContainerMemory:
+                    CPUUsage: Percentage #DONE
+                Workload[]
+                    AppName: #DONE
+                    AppInstance: #DONE
+                    AppComponent: #DONE
 
 ```

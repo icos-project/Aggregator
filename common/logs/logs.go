@@ -13,94 +13,55 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package logs
 
 import (
-	"fmt"
-	"os"
-	"strings"
-
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
+var lsugar *zap.SugaredLogger
+
+// caller formatter
+func funcCaller(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
+	enc.AppendString("\t[" + caller.TrimmedPath() + "]")
+}
+
+// init
 func init() {
-	// zerolog
-	// https://blog.logrocket.com/5-structured-logging-packages-for-go/
 
-	log_level := os.Getenv("LOG_LEVEL")
-
-	// UNIX Time is faster and smaller than most timestamps
-	//zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	// global log level
-	if len(log_level) == 0 {
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	} else {
-		if strings.ToLower(log_level) == "trace" {
-			zerolog.SetGlobalLevel(zerolog.TraceLevel)
-		} else if strings.ToLower(log_level) == "debug" {
-			zerolog.SetGlobalLevel(zerolog.DebugLevel)
-		} else {
-			zerolog.SetGlobalLevel(zerolog.InfoLevel)
-		}
+	// Custom configuration
+	config := zap.Config{
+		Encoding:    "console",                                // Output format (json or console)
+		Level:       zap.NewAtomicLevelAt(zapcore.DebugLevel), // Log level
+		OutputPaths: []string{"stdout"},                       // Output destinations //"./logs/logfile.log"},
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:          "ts",                             // Key for the timestamp field
+			LevelKey:         "level",                          // Key for the log level field
+			NameKey:          "logger",                         // Key for the logger name field
+			CallerKey:        "caller",                         // Key for the caller field
+			MessageKey:       "msg",                            // Key for the message field
+			StacktraceKey:    "stacktrace",                     // Key for the stacktrace field
+			LineEnding:       zapcore.DefaultLineEnding,        // Line ending character
+			EncodeLevel:      zapcore.CapitalColorLevelEncoder, // CapitalColorLevelEncoder, CapitalLevelEncoder, LowercaseLevelEncoder, // Log level format
+			EncodeTime:       zapcore.ISO8601TimeEncoder,       // Timestamp format
+			EncodeDuration:   zapcore.StringDurationEncoder,    // Duration format
+			EncodeCaller:     funcCaller,                       // Caller format
+			ConsoleSeparator: " ",
+		},
 	}
 
-	// Console, not JSON
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "2006-01-02T15:04:05.999Z07:00"})
+	// Build the logger with the custom configuration
+	logger, _ := config.Build()
+	lsugar = logger.Sugar()
+	defer logger.Sync() // Flushes buffer, if any
+
+	// Log a message with the custom logger
+	lsugar.Info("Logger initialized with custom configuration")
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-func Println(m string) {
-	log.Info().Msg(m)
-}
-
-func Printlne(m string, e error) {
-	log.Error().Msg(m + " " + e.Error())
-}
-
-func Printf(format string, args ...interface{}) {
-	log.Printf(format, args...)
-}
-
-func Printfi(m string, s int) {
-	log.Printf(m, s)
-}
-
-func Trace(args ...interface{}) {
-	s := fmt.Sprint(args...)
-	log.Trace().Msg(s)
-}
-
-func Debug(args ...interface{}) {
-	s := fmt.Sprint(args...)
-	log.Debug().Msg(s)
-}
-
-func Info(m string) {
-	log.Info().Msg(m)
-}
-
-func Infof(args ...interface{}) {
-	s := fmt.Sprint(args...)
-	log.Info().Msg(s)
-}
-
-func Warn(args ...interface{}) {
-	s := fmt.Sprint(args...)
-	log.Warn().Msg(s)
-}
-
-func Error(args ...interface{}) {
-	s := fmt.Sprint(args...)
-	log.Error().Msg(s)
-}
-
-func Fatal(args ...interface{}) {
-	s := fmt.Sprint(args...)
-	log.Fatal().Msg(s)
-}
-
-func Panic(m string) {
-	log.Panic().Msg(m)
+// GetLogger Returns global and configured logger
+func GetLogger() *zap.SugaredLogger {
+	return lsugar
 }

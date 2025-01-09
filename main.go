@@ -16,7 +16,7 @@ limitations under the License.
 package main
 
 import (
-	log "aggregator/common/logs"
+	logs "aggregator/common/logs"
 	http "aggregator/servers/http"
 	protobuf "aggregator/servers/protobuf"
 	"os"
@@ -43,18 +43,15 @@ import (
 // @externalDocs.description	OpenAPI
 // @externalDocs.url			https://swagger.io/resources/open-api/
 
-// path used in logs
-const pathLOG string = "AGGREGATOR > "
-
 func main() {
 
-	log.Info(pathLOG + "Starting Aggregator [v1.2.8] [2024.10.28] ...")
+	logs.GetLogger().Info("Starting ICOS Aggregator [v1.3.0] [2025.01.09] ...")
 
 	// Get ports
 	http_port := os.Getenv("HTTP_PORT")
 	grpc_port := os.Getenv("GRPC_PORT")
 
-	log.Info(pathLOG + "Using PROMETHEUS_ADDRESS: " + os.Getenv("PROMETHEUS_ADDRESS"))
+	logs.GetLogger().Info("Using PROMETHEUS_ADDRESS: " + os.Getenv("PROMETHEUS_ADDRESS"))
 
 	var wg sync.WaitGroup
 
@@ -65,14 +62,14 @@ func main() {
 
 	// Launch HTTP server
 	if http_port != "" {
-		log.Info("Starting HTTP server...")
+		logs.GetLogger().Info("Starting HTTP server...")
 		wg.Add(1)
 		go http.CreateServer(&wg, "icos", http_port)
 	}
 
 	// Launch gRPC server
 	if grpc_port != "" {
-		log.Info("Starting gRPC server...")
+		logs.GetLogger().Info("Starting gRPC server...")
 		wg.Add(1)
 		go protobuf.CreateServer(&wg, "etim", grpc_port)
 	}
