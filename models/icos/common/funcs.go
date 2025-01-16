@@ -13,16 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package models_icos
+package common
 
 import (
 	"math"
 	"strings"
 
 	logs "aggregator/common/logs"
+	"aggregator/models/icos/models"
 )
 
-func maxInt64(list []int64) int64 {
+func MaxInt64(list []int64) int64 {
 	max := int64(math.Inf(-1))
 	for _, n := range list {
 		if n > max {
@@ -40,7 +41,7 @@ func maxInt64(list []int64) int64 {
 // - icos_host_name="icos-uc2-test-001"
 // - OrchInfoNode.icos_host_name="icos-uc2-test-001"
 // ==>  OrchInfoNode[i].IcosHostName == icos_host_name ==> nuvla
-func isNuvlaCluster(icos_host_name string, orchs map[string]OrchInfoNode) bool {
+func IsNuvlaCluster(icos_host_name string, orchs map[string]models.OrchInfoNode) bool {
 	for _, n := range orchs {
 		if icos_host_name == "" {
 			//logs.GetLogger().Warn(pathLOG+"'icos_host_name' value is empty [icos_host_name:", icos_host_name, "]")
@@ -55,7 +56,7 @@ func isNuvlaCluster(icos_host_name string, orchs map[string]OrchInfoNode) bool {
 	return false
 }
 
-func getNuvlaClusterName(icos_host_name string, orchs map[string]OrchInfoNode) string {
+func GetNuvlaClusterName(icos_host_name string, orchs map[string]models.OrchInfoNode) string {
 
 	for _, n := range orchs {
 		if n.Type == strings.ToLower("nuvla") && n.IcosHostName == icos_host_name {
@@ -67,11 +68,11 @@ func getNuvlaClusterName(icos_host_name string, orchs map[string]OrchInfoNode) s
 }
 
 // check if 'k8s_cluster_uid' from 'node_uname_info' query correspond to an OCM node / cluster
-func isOCMCluster(k8s_cluster_uid string, orchs map[string]OrchInfoNode) bool {
+func IsOCMCluster(k8s_cluster_uid string, orchs map[string]models.OrchInfoNode) bool {
 
 	for _, n := range orchs {
 		if k8s_cluster_uid == "" {
-			logs.GetLogger().Warn(pathLOG+"'k8s_cluster_uid' value is empty [k8s_cluster_uid:", k8s_cluster_uid, "]")
+			logs.GetLogger().Warn("'k8s_cluster_uid' value is empty [k8s_cluster_uid:", k8s_cluster_uid, "]")
 			return false
 		}
 
@@ -84,7 +85,7 @@ func isOCMCluster(k8s_cluster_uid string, orchs map[string]OrchInfoNode) bool {
 }
 
 // get Id from nuvla node using the icos_host_name value
-func getNuvlaNodeId(icos_host_name string, orchs map[string]OrchInfoNode) string {
+func GetNuvlaNodeId(icos_host_name string, orchs map[string]models.OrchInfoNode) string {
 
 	for _, n := range orchs {
 		if n.IcosHostName == icos_host_name {
@@ -96,7 +97,7 @@ func getNuvlaNodeId(icos_host_name string, orchs map[string]OrchInfoNode) string
 }
 
 // get engine from nuvla node using the icos_host_name or cluster_id value
-func getEngine(icos_host_name string, cluster_id string, orchs map[string]OrchInfoNode) string {
+func GetEngine(icos_host_name string, cluster_id string, orchs map[string]models.OrchInfoNode) string {
 	for _, n := range orchs {
 		if n.IcosHostName == icos_host_name || n.Id == cluster_id {
 			return n.Engine
@@ -109,22 +110,23 @@ func getEngine(icos_host_name string, cluster_id string, orchs map[string]OrchIn
 // Nodes, pods and containers info
 
 // getNodeInfo
-func getNodeInfo(nodeId string, nodes map[string]Node) Node {
+func GetNodeInfo(icos_host_name string, nodes map[string]models.Node) models.Node {
 	for _, n := range nodes {
-		if strings.EqualFold(n.K8sNodeUid, nodeId) {
+
+		if strings.EqualFold(n.IcosHostName, icos_host_name) {
 			//logs.GetLogger().Debug("Node matches input values: pod_name [", pod_name, "] parentNodeUid [", parentNodeUid, "]. Returning node ...")
 			return n
 		}
 	}
 
-	logs.GetLogger().Warn("Node not found. Input values: parentNodeUid [", nodeId, "]")
-	return Node{} // NOT FOUND
+	logs.GetLogger().Warn("Node not found. Input values: 'icos_host_name' [", icos_host_name, "]")
+	return models.Node{} // NOT FOUND
 }
 
 // Checks
 
 // checkCluster checks if cluster is not "self" and if it exists in clusters list
-func checkCluster(clusterid string, clusters map[string]Cluster, metric string) bool {
+func CheckCluster(clusterid string, clusters map[string]models.Cluster, metric string) bool {
 	if clusterid == "self" {
 		return false
 	}
@@ -133,42 +135,42 @@ func checkCluster(clusterid string, clusters map[string]Cluster, metric string) 
 		return true
 	}
 
-	logs.GetLogger().Warn(pathLOG+"Unknown CLUSTER ", clusterid, " [", metric, "]")
+	logs.GetLogger().Warn("Unknown CLUSTER [", clusterid, "] {", metric, "}")
 	return false
 }
 
 // checkClusterNode
-func checkClusterNode(clusterid string, nodeid string, clusters map[string]Cluster, metric string) bool {
-	if checkCluster(clusterid, clusters, metric) {
+func CheckClusterNode(clusterid string, nodeid string, clusters map[string]models.Cluster, metric string) bool {
+	if CheckCluster(clusterid, clusters, metric) {
 		if _, existsNode := clusters[clusterid].Node[nodeid]; existsNode {
 			return true
 		}
-		logs.GetLogger().Warn(pathLOG+"Unknown NODE ", nodeid, " in CLUSTER ", clusterid, " [", metric, "]")
+		logs.GetLogger().Warn("Unknown NODE [", nodeid, "] in CLUSTER [", clusterid, "] {", metric, "}")
 	}
 
 	return false
 }
 
 // checkClusterNodePod
-func checkClusterNodePod(clusterid string, nodeid string, podid string, clusters map[string]Cluster, metric string) bool {
-	if checkClusterNode(clusterid, nodeid, clusters, metric) {
+func CheckClusterNodePod(clusterid string, nodeid string, podid string, clusters map[string]models.Cluster, metric string) bool {
+	if CheckClusterNode(clusterid, nodeid, clusters, metric) {
 		if _, existsPod := clusters[clusterid].Node[nodeid].Pod[podid]; existsPod {
 			return true
 		}
-		logs.GetLogger().Warn(pathLOG+"Unknown POD ", podid, " in NODE ", nodeid, " and CLUSTER ", clusterid, " [", metric, "]")
+		logs.GetLogger().Warn("Unknown POD [", podid, "] in NODE [", nodeid, "] and CLUSTER [", clusterid, "] {", metric, "}")
 	}
 
 	return false
 }
 
 // checkClusterNodePodContainer
-func checkClusterNodePodContainer(clusterid string, nodeid string, podid string, containerid string, clusters map[string]Cluster, metric string) bool {
+func CheckClusterNodePodContainer(clusterid string, nodeid string, podid string, containerid string, clusters map[string]models.Cluster, metric string) bool {
 
-	if checkClusterNodePod(clusterid, nodeid, podid, clusters, metric) {
+	if CheckClusterNodePod(clusterid, nodeid, podid, clusters, metric) {
 		if _, existsContainer := clusters[clusterid].Node[nodeid].Pod[podid].Container[containerid]; existsContainer {
 			return true
 		}
-		logs.GetLogger().Warn(pathLOG+"Unknown CONTAINER ", containerid, " in POD ", podid, " and NODE ", nodeid, " and CLUSTER ", clusterid, " [", metric, "]")
+		logs.GetLogger().Warn("Unknown CONTAINER [", containerid, "] in POD [", podid, "] and NODE [", nodeid, "] and CLUSTER [", clusterid, "] {", metric, "}")
 	}
 
 	return false

@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package models_icos
+package models
 
 type Controllers []*Controller
 
@@ -56,13 +56,13 @@ func (c Cluster) String() string {
 }
 
 type Node struct {
-	Type              string               `json:"type,omitempty"`
-	Uuid              string               `json:"uuid,omitempty"`
-	Name              string               `json:"name,omitempty"`
-	Engine            string               `json:"engine,omitempty"`
-	NetHostName       string               `json:"-"`
-	IcosHostName      string               `json:"-"` // matches value of 'icos_host_name' in 'kube_pod_info' query
-	K8sNodeUid        string               `json:"-"` // matches value of 'k8s_node_uid' in 'kube_pod_info' query
+	Type         string `json:"type,omitempty"`
+	Uuid         string `json:"uuid,omitempty"`
+	Name         string `json:"name,omitempty"`
+	Engine       string `json:"engine,omitempty"`
+	NetHostName  string `json:"-"`
+	IcosHostName string `json:"-"` // matches value of 'icos_host_name' in 'kube_pod_info' query
+	//K8sNodeUid        string               `json:"-"` // matches value of 'k8s_node_uid' in 'kube_pod_info' query
 	Location          Location             `json:"location,omitempty"`
 	Vulnerabilities   map[string]int32     `json:"vulnerabilities,omitempty"`
 	ScaScore          int32                `json:"ScaScore,omitempty"`
@@ -81,11 +81,9 @@ func (n Node) String() string {
 
 type Pod struct {
 	Uid                string               `json:"-"`
-	ParentNodeName     string               `json:"-"`
 	ParentNodeId       string               `json:"-"` // icos_host_id from parent Node
 	ClusterUid         string               `json:"-"` // cluster uid
 	IcosHostName       string               `json:"-"`
-	K8sNodeUid         string               `json:"-"` // matches value of 'k8s_node_uid' in 'kube_pod_info' query
 	Name               string               `json:"name,omitempty"`
 	IP                 string               `json:"ip,omitempty"`
 	Status             string               `json:"status,omitempty"`
@@ -96,8 +94,7 @@ type Pod struct {
 }
 
 func (p Pod) String() string {
-	return "Uid: " + p.Uid + ", Name: " + p.Name + ", ParentNodeName: " + p.ParentNodeName +
-		", ParentNodeId: " + p.ParentNodeId + ", IcosHostName:" + p.IcosHostName
+	return "Uid: " + p.Uid + ", Name: " + p.Name + ", ParentNodeId: " + p.ParentNodeId + ", IcosHostName:" + p.IcosHostName
 }
 
 type Container struct {
@@ -203,5 +200,4 @@ type OrchInfoNode struct {
 	Uuid          string `json:"agent_id,omitempty"`
 	K8sClusterUid string `json:"k8s_cluster_uid,omitempty"` // OCM
 	IcosHostName  string `json:"icos_host_name,omitempty"`  // Nuvla
-	K8sNodeName   string `json:"k8s_node_name,omitempty"`
 }
