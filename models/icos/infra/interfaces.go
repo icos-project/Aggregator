@@ -13,9 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package models_icos
+package infra
 
 import (
+	"aggregator/models/icos/common"
+	"aggregator/models/icos/models"
 	"aggregator/querier"
 	"strings"
 )
@@ -52,7 +54,7 @@ import (
  *				Device[]
  *					...
  */
-func processNetworkInterfaces(clusters map[string]Cluster, orchs map[string]OrchInfoNode) {
+func SetNetworkInterfaces(clusters map[string]models.Cluster, orchs map[string]models.OrchInfoNode) {
 
 	q := querier.PromQLQuery{
 		Metric: "node_network_info",
@@ -69,8 +71,8 @@ func processNetworkInterfaces(clusters map[string]Cluster, orchs map[string]Orch
 			cluster_id = "nuvla"
 		}
 
-		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) && cluster_id != "self" {
-			newInterface := Interface{
+		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) && cluster_id != "self" {
+			newInterface := models.Interface{
 				Name: i_name,
 				Type: i_type,
 			}
@@ -101,7 +103,7 @@ func processNetworkInterfaces(clusters map[string]Cluster, orchs map[string]Orch
 			cluster_id = "nuvla"
 		}
 
-		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) && cluster_id != "self" {
+		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) && cluster_id != "self" {
 			iface := clusters[cluster_id].Node[node_id].NetworkInterfaces[i_name]
 			iface.Status = status_str
 			clusters[cluster_id].Node[node_id].NetworkInterfaces[i_name] = iface
@@ -124,7 +126,7 @@ func processNetworkInterfaces(clusters map[string]Cluster, orchs map[string]Orch
 			cluster_id = "nuvla"
 		}
 
-		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) && cluster_id != "self" {
+		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) && cluster_id != "self" {
 			iface := clusters[cluster_id].Node[node_id].NetworkInterfaces[i_name]
 			iface.IP = i_address
 			iface.SubnetMask = i_netmask
@@ -147,7 +149,7 @@ func processNetworkInterfaces(clusters map[string]Cluster, orchs map[string]Orch
 			cluster_id = "nuvla"
 		}
 
-		if checkClusterNode(cluster_id, node_id, clusters, q.Metric) && cluster_id != "self" {
+		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) && cluster_id != "self" {
 			iface := clusters[cluster_id].Node[node_id].NetworkInterfaces[i_name]
 			iface.Speed = speed
 			clusters[cluster_id].Node[node_id].NetworkInterfaces[i_name] = iface

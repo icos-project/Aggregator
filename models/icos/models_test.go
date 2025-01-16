@@ -16,6 +16,7 @@ limitations under the License.
 package models_icos
 
 import (
+	"aggregator/models/icos/models"
 	"bytes"
 	"encoding/json"
 	"testing"
@@ -25,9 +26,9 @@ func TestControler(t *testing.T) {
 
 	want := []byte(`{"type":"MetaOrchestrator","name":"ICOS1","location":{"name":"BCN"},"serviceLevelAgreement":{},"API":{}}`)
 
-	c := Controller{Type: "MetaOrchestrator",
+	c := models.Controller{Type: "MetaOrchestrator",
 		Name:     "ICOS1",
-		Location: Location{Name: "BCN"},
+		Location: models.Location{Name: "BCN"},
 	}
 
 	got, err := json.Marshal(c)
