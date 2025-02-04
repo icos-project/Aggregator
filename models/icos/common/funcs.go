@@ -68,15 +68,15 @@ func GetNuvlaClusterName(icos_host_name string, orchs map[string]models.OrchInfo
 }
 
 // check if 'k8s_cluster_uid' from 'node_uname_info' query correspond to an OCM node / cluster
-func IsOCMCluster(k8s_cluster_uid string, orchs map[string]models.OrchInfoNode) bool {
+func IsOCMCluster(cluster_ud string, orchs map[string]models.OrchInfoNode) bool {
 
 	for _, n := range orchs {
-		if k8s_cluster_uid == "" {
-			logs.GetLogger().Warn("'k8s_cluster_uid' value is empty [k8s_cluster_uid:", k8s_cluster_uid, "]")
+		if cluster_ud == "" {
+			logs.GetLogger().Warn("'k8s_cluster_uid' value is empty [cluster_ud:", cluster_ud, "]")
 			return false
 		}
 
-		if n.Type == strings.ToLower("ocm") && n.K8sClusterUid == k8s_cluster_uid {
+		if n.Type == strings.ToLower("ocm") && n.ClusterId == cluster_ud {
 			return true
 		}
 	}
@@ -96,8 +96,19 @@ func GetNuvlaNodeId(icos_host_name string, orchs map[string]models.OrchInfoNode)
 	return "" // NOT FOUND / already deleted
 }
 
-// get engine from nuvla node using the icos_host_name or cluster_id value
+// get engine from node
 func GetEngine(icos_host_name string, cluster_id string, orchs map[string]models.OrchInfoNode) string {
+	for _, n := range orchs {
+		if n.ClusterId == cluster_id {
+			return n.Engine
+		}
+	}
+
+	return "unknown" // NOT FOUND / already deleted
+}
+
+// get engine from nuvla node using the icos_host_name or cluster_id value
+func GetNuvlaEngine(icos_host_name string, cluster_id string, orchs map[string]models.OrchInfoNode) string {
 	for _, n := range orchs {
 		if n.IcosHostName == icos_host_name || n.Id == cluster_id {
 			return n.Engine

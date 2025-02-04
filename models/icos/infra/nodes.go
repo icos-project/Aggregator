@@ -51,13 +51,13 @@ func SetNodes(clusters map[string]models.Cluster, orchs map[string]models.OrchIn
 		orch_id := string(node.Metric["agent_id"])
 
 		var orchInfo = models.OrchInfoNode{
-			Id:            orch_id,
-			Type:          string(node.Metric["type"]),
-			Name:          string(node.Metric["agent_name"]), // Nuvla cluster
-			Uuid:          string(node.Metric["agent_id"]),
-			K8sClusterUid: string(node.Metric["icos_cluster_id"]), // OCM // icos_cluster_id instead of k8s_cluster_uid
-			IcosHostName:  string(node.Metric["icos_host_name"]),  // Nuvla
-			Engine:        "unknown",                              // default, may be updated
+			Id:           orch_id,
+			Type:         string(node.Metric["type"]),
+			Name:         string(node.Metric["agent_name"]), // Nuvla cluster
+			Uuid:         string(node.Metric["agent_id"]),
+			ClusterId:    string(node.Metric["icos_cluster_id"]), // OCM // icos_cluster_id instead of k8s_cluster_uid
+			IcosHostName: string(node.Metric["icos_host_name"]),  // Nuvla
+			Engine:       "unknown",                              // default, may be updated
 		}
 		orchs[orch_id] = orchInfo
 	}
@@ -74,7 +74,8 @@ func SetNodes(clusters map[string]models.Cluster, orchs map[string]models.OrchIn
 		icos_cluster_id := string(node.Metric["icos_cluster_id"]) // icos_cluster_id instead of k8s_cluster_uid
 
 		for _, o := range orchs {
-			if o.IcosHostName == icos_host_name || o.K8sClusterUid == icos_cluster_id {
+
+			if o.IcosHostName == icos_host_name || o.ClusterId == icos_cluster_id {
 
 				// First we get a "copy" of the entry
 				if entry, ok := orchs[o.Id]; ok {
@@ -185,6 +186,7 @@ func SetNodes(clusters map[string]models.Cluster, orchs map[string]models.OrchIn
  */
 func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.OrchInfoNode) {
 
+	// CLUSTERS
 	// clusters: tlum_orch_info
 	logs.GetLogger().Info("\t>> QUERY: tlum_orch_info")
 	q := querier.PromQLQuery{
@@ -194,35 +196,35 @@ func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.Orch
 	for _, node := range querier.Query(q.String()) {
 		orch_id := string(node.Metric["agent_id"])
 
-		var orchInfo = models.OrchInfoNode{
-			Id:            orch_id,
-			Type:          string(node.Metric["type"]),
-			Name:          string(node.Metric["agent_name"]), // Nuvla cluster
-			Uuid:          string(node.Metric["agent_id"]),
-			K8sClusterUid: string(node.Metric["icos_cluster_id"]), // OCM // icos_cluster_id instead of k8s_cluster_uid
-			IcosHostName:  string(node.Metric["icos_host_name"]),  // Nuvla
-			Engine:        "unknown",                              // default, may be updated
+		var newCluster = models.OrchInfoNode{
+			Id:           orch_id,
+			Type:         string(node.Metric["type"]),
+			Name:         string(node.Metric["agent_name"]), // Nuvla cluster
+			Uuid:         string(node.Metric["agent_id"]),
+			ClusterId:    string(node.Metric["icos_cluster_id"]), // OCM // icos_cluster_id instead of k8s_cluster_uid
+			IcosHostName: string(node.Metric["icos_host_name"]),  // Nuvla
+			Engine:       "unknown",                              // default, may be updated
 		}
-		orchs[orch_id] = orchInfo
+		orchs[orch_id] = newCluster
 	}
 
+	// CLUSTERS AND HOSTS
 	// clusters: tlum_runtime_info
 	logs.GetLogger().Info("\t>> QUERY: tlum_runtime_info")
 	q = querier.PromQLQuery{
 		Metric: "tlum_runtime_info",
 		Params: map[string]string{}}
 
-	for _, node := range querier.Query(q.String()) {
+	hosts := querier.Query(q.String())
+
+	for _, node := range hosts { //querier.Query(q.String()) {
 		engine := string(node.Metric["type"])
-		icos_host_name := string(node.Metric["icos_host_name"])
 		icos_cluster_id := string(node.Metric["icos_cluster_id"]) // icos_cluster_id instead of k8s_cluster_uid
 
 		for _, o := range orchs {
-			if o.IcosHostName == icos_host_name || o.K8sClusterUid == icos_cluster_id {
-
+			if o.ClusterId == icos_cluster_id {
 				// First we get a "copy" of the entry
 				if entry, ok := orchs[o.Id]; ok {
-
 					// Then we modify the copy
 					entry.Engine = engine
 
@@ -230,6 +232,7 @@ func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.Orch
 					orchs[o.Id] = entry
 				}
 
+				break
 			}
 		}
 
@@ -243,7 +246,8 @@ func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.Orch
 
 	for _, node := range querier.Query(q.String()) {
 		cluster_id := string(node.Metric["icos_cluster_id"])
-		cluster_type := "unknown"
+		cluster_type := ""
+		engine := "UNKNOWN"
 		node_id := strings.TrimSpace(string(node.Metric["icos_host_id"]))
 		node_name := string(node.Metric["hostname"]) // 'hostname' instead of 'nodename'
 		net_host_name := string(node.Metric["net_host_name"])
@@ -257,11 +261,11 @@ func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.Orch
 			if common.IsNuvlaCluster(icos_host_name, orchs) {
 				cluster_id = common.GetNuvlaClusterName(icos_host_name, orchs)
 				cluster_type = "nuvla"
+				engine = common.GetNuvlaEngine(cluster_id, cluster_id, orchs)
 			} else if common.IsOCMCluster(cluster_id, orchs) {
 				cluster_type = "ocm"
+				engine = common.GetEngine(cluster_id, cluster_id, orchs)
 			}
-
-			engine := common.GetEngine(icos_host_name, cluster_id, orchs)
 
 			if cluster_type != "" {
 				if _, exists := clusters[cluster_id]; !exists {

@@ -193,11 +193,11 @@ type ServiceLevelAgreement struct { //TODO: complete
 }
 
 type OrchInfoNode struct {
-	Id            string `json:"id,omitempty"`
-	Type          string `json:"type,omitempty"` // "ocm" or "nuvla"
-	Name          string `json:"agent_name,omitempty"`
-	Engine        string `json:"engine,omitempty"`
-	Uuid          string `json:"agent_id,omitempty"`
-	K8sClusterUid string `json:"k8s_cluster_uid,omitempty"` // OCM
-	IcosHostName  string `json:"icos_host_name,omitempty"`  // Nuvla
+	Id           string `json:"id,omitempty"`
+	Type         string `json:"type,omitempty"` // "ocm" or "nuvla"
+	Name         string `json:"agent_name,omitempty"`
+	Engine       string `json:"engine,omitempty"`
+	Uuid         string `json:"agent_id,omitempty"`
+	ClusterId    string `json:"icos_cluster_uid,omitempty"` // OCM
+	IcosHostName string `json:"icos_host_name,omitempty"`   // Nuvla
 }
