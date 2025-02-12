@@ -56,13 +56,12 @@ func (c Cluster) String() string {
 }
 
 type Node struct {
-	Type         string `json:"type,omitempty"`
-	Uuid         string `json:"uuid,omitempty"`
-	Name         string `json:"name,omitempty"`
-	Engine       string `json:"engine,omitempty"`
-	NetHostName  string `json:"-"`
-	IcosHostName string `json:"-"` // matches value of 'icos_host_name' in 'kube_pod_info' query
-	//K8sNodeUid        string               `json:"-"` // matches value of 'k8s_node_uid' in 'kube_pod_info' query
+	Type              string               `json:"type,omitempty"`
+	Uuid              string               `json:"uuid,omitempty"`
+	Name              string               `json:"name,omitempty"`
+	Engine            string               `json:"engine,omitempty"`
+	NetHostName       string               `json:"-"`
+	IcosHostName      string               `json:"-"` // matches value of 'icos_host_name' in 'kube_pod_info' query
 	Location          Location             `json:"location,omitempty"`
 	Vulnerabilities   map[string]int32     `json:"vulnerabilities,omitempty"`
 	ScaScore          int32                `json:"ScaScore,omitempty"`
@@ -71,8 +70,7 @@ type Node struct {
 	NetworkInterfaces map[string]Interface `json:"networkInterfaces,omitempty"`
 	Devices           map[string]Device    `json:"devices,omitempty"`
 	Pod               map[string]Pod       `json:"pod,omitempty"`
-	//Labels            []Label              `json:"labels,omitempty"`
-	Labels map[string]string `json:"labels,omitempty"`
+	Labels            map[string]string    `json:"labels,omitempty"`
 }
 
 func (n Node) String() string {

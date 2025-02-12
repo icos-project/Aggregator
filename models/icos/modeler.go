@@ -30,6 +30,7 @@ import (
 func GetInfra() []byte {
 
 	// Get metrics from Thanos
+	logs.GetLogger().Info("----------------------------------------------------")
 	logs.GetLogger().Info("> Aggregator called: Getting metrics from Thanos ...")
 	clusters := queryPrometheus()
 

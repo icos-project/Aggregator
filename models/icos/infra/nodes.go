@@ -24,166 +24,33 @@ import (
 	"strings"
 )
 
-/**
- * nodes: Retrieves clusters and nodes
- *
- * metrics: - tlum_orch_info
- *			- tlum_runtime_info
- *			- node_uname_info
- *
- * 	Infrastrcuture:
- *		Timestamp:
- *		 	...
- *		Agent:Cluster[]
- *			...
- *			Node[]
- *				...
- */
-func SetNodes(clusters map[string]models.Cluster, orchs map[string]models.OrchInfoNode) {
+/*
+*
 
-	// clusters: tlum_orch_info
-	logs.GetLogger().Info("\t>> QUERY: tlum_orch_info")
-	q := querier.PromQLQuery{
-		Metric: "tlum_orch_info",
-		Params: map[string]string{}}
+  - nodes: Retrieves clusters and nodes
+    *
 
-	for _, node := range querier.Query(q.String()) {
-		orch_id := string(node.Metric["agent_id"])
+  - metrics: - tlum_orch_info
 
-		var orchInfo = models.OrchInfoNode{
-			Id:           orch_id,
-			Type:         string(node.Metric["type"]),
-			Name:         string(node.Metric["agent_name"]), // Nuvla cluster
-			Uuid:         string(node.Metric["agent_id"]),
-			ClusterId:    string(node.Metric["icos_cluster_id"]), // OCM // icos_cluster_id instead of k8s_cluster_uid
-			IcosHostName: string(node.Metric["icos_host_name"]),  // Nuvla
-			Engine:       "unknown",                              // default, may be updated
-		}
-		orchs[orch_id] = orchInfo
-	}
+  - - tlum_runtime_info
 
-	// clusters: tlum_runtime_info
-	logs.GetLogger().Info("\t>> QUERY: tlum_runtime_info")
-	q = querier.PromQLQuery{
-		Metric: "tlum_runtime_info",
-		Params: map[string]string{}}
+  - - tlum_host_info
+    *
 
-	for _, node := range querier.Query(q.String()) {
-		engine := string(node.Metric["type"])
-		icos_host_name := string(node.Metric["icos_host_name"])
-		icos_cluster_id := string(node.Metric["icos_cluster_id"]) // icos_cluster_id instead of k8s_cluster_uid
+  - Infrastrcuture:
 
-		for _, o := range orchs {
+  - Timestamp:
 
-			if o.IcosHostName == icos_host_name || o.ClusterId == icos_cluster_id {
+  - ...
 
-				// First we get a "copy" of the entry
-				if entry, ok := orchs[o.Id]; ok {
+  - Agent:Cluster[]
 
-					// Then we modify the copy
-					entry.Engine = engine
+  - ...
 
-					// Then we reassign map entry
-					orchs[o.Id] = entry
-				}
+  - Node[]
 
-			}
-		}
-
-	}
-
-	// Clusters and Nodes
-	logs.GetLogger().Info("\t>> QUERY: node_uname_info")
-	q = querier.PromQLQuery{
-		Metric: "node_uname_info",
-		Params: map[string]string{}}
-
-	for _, node := range querier.Query(q.String()) {
-
-		cluster_id := string(node.Metric["icos_cluster_id"]) // icos_cluster_id instead of k8s_cluster_uid
-		cluster_type := "unknown"
-		node_id := strings.TrimSpace(string(node.Metric["icos_host_id"]))
-		node_name := string(node.Metric["nodename"])
-		net_host_name := string(node.Metric["net_host_name"])
-		icos_host_name := string(node.Metric["icos_host_name"])
-		icos_agent_id := string(node.Metric["icos_agent_id"])
-		architecture := string(node.Metric["machine"])
-		latitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_latitude"]), 8)
-		longitude, _ := strconv.ParseFloat(string(node.Metric["icos_alpha_longitude"]), 8)
-
-		if cluster_id != "self" {
-			if common.IsNuvlaCluster(icos_host_name, orchs) {
-				cluster_id = common.GetNuvlaClusterName(icos_host_name, orchs)
-				cluster_type = "nuvla"
-			} else if common.IsOCMCluster(cluster_id, orchs) {
-				cluster_type = "ocm"
-			}
-
-			engine := common.GetEngine(icos_host_name, cluster_id, orchs)
-
-			//logs.GetLogger().Debug(pathLOG+"[node_uname_info] [cluster_id:", cluster_id, "] [icos_host_name:", icos_host_name, "] [cluster_type:", cluster_type, "]")
-
-			if cluster_type != "" {
-				if _, exists := clusters[cluster_id]; !exists {
-					var newCluster = models.Cluster{
-						Uuid:        cluster_id,
-						Type:        cluster_type,
-						Engine:      engine,
-						ICOSAgentID: icos_agent_id,
-						Node:        map[string]models.Node{},
-					}
-					clusters[cluster_id] = newCluster
-				}
-
-				newNode := models.Node{
-					Uuid:         node_id,
-					Type:         cluster_type,
-					Name:         node_name,
-					Engine:       engine,
-					NetHostName:  net_host_name,
-					IcosHostName: icos_host_name, // matches value of 'icos_host_name' in 'kube_pod_info' query
-					Location: models.Location{
-						Latitude:  latitude,
-						Longitude: longitude,
-					},
-					StaticMetrics:     models.StaticMetrics{CPUArchitecture: architecture},
-					NetworkInterfaces: map[string]models.Interface{},
-					Devices:           map[string]models.Device{},
-					Pod:               map[string]models.Pod{},
-				}
-				clusters[cluster_id].Node[node_id] = newNode
-			} else {
-				logs.GetLogger().Warn("Unknown cluster type [cluster_id:", cluster_id, "]. Cluster not added to infraestructure.")
-			}
-
-		}
-	}
-
-	logs.GetLogger().Debug("\t>> Clusters (Uuid) and nodes (Uuid, IcosHostName) added to infra: ")
-	for _, c := range clusters {
-		logs.GetLogger().Debug("\t     * " + c.Uuid + " (" + c.Type + ", " + c.Engine + ")")
-		for _, n := range clusters[c.Uuid].Node {
-			logs.GetLogger().Debug("\t       - " + n.Uuid + " (" + n.IcosHostName + ")")
-		}
-	}
-
-}
-
-/**
- * nodes: Retrieves clusters and nodes
- *
- * metrics: - tlum_orch_info
- *			- tlum_runtime_info
- *			- tlum_host_info
- *
- * 	Infrastrcuture:
- *		Timestamp:
- *		 	...
- *		Agent:Cluster[]
- *			...
- *			Node[]
- *				...
- */
+  - ...
+*/
 func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.OrchInfoNode) {
 
 	// CLUSTERS
@@ -264,17 +131,19 @@ func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.Orch
 				engine = common.GetNuvlaEngine(cluster_id, cluster_id, orchs)
 			} else if common.IsOCMCluster(cluster_id, orchs) {
 				cluster_type = "ocm"
-				engine = common.GetEngine(cluster_id, cluster_id, orchs)
+				engine = common.GetEngine(cluster_id, orchs)
 			}
 
 			if cluster_type != "" {
 				if _, exists := clusters[cluster_id]; !exists {
+					cluster_name := common.GetClusterName(cluster_id, orchs)
 					var newCluster = models.Cluster{
 						Uuid:        cluster_id,
 						Type:        cluster_type,
 						Engine:      engine,
 						ICOSAgentID: icos_agent_id,
 						Node:        map[string]models.Node{},
+						Name:        cluster_name,
 					}
 					clusters[cluster_id] = newCluster
 				}

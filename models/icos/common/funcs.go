@@ -97,10 +97,21 @@ func GetNuvlaNodeId(icos_host_name string, orchs map[string]models.OrchInfoNode)
 }
 
 // get engine from node
-func GetEngine(icos_host_name string, cluster_id string, orchs map[string]models.OrchInfoNode) string {
+func GetEngine(cluster_id string, orchs map[string]models.OrchInfoNode) string {
 	for _, n := range orchs {
 		if n.ClusterId == cluster_id {
 			return n.Engine
+		}
+	}
+
+	return "unknown" // NOT FOUND / already deleted
+}
+
+// get name from cluster
+func GetClusterName(icos_cluster_id string, orchs map[string]models.OrchInfoNode) string {
+	for _, n := range orchs {
+		if n.ClusterId == icos_cluster_id {
+			return n.Name
 		}
 	}
 
