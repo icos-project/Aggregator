@@ -1,6 +1,6 @@
-# RELATIONSHICP BETWEEN QUERIES AND INFRA STRUCTS
+# Relation between queries and infra structs
 
-## INFRA
+## Infra
 
 ```yaml
 Infrastrcuture
@@ -16,9 +16,9 @@ Infrastrcuture
                 Container[]
 ```
 
-## QUERIES
+## Queries
 
-### CLUSTERS: tlum_orch_info, tlum_runtime_info
+### Clusters: tlum_orch_info, tlum_runtime_info
 
 info about **clusters**
 
@@ -27,7 +27,7 @@ info about **clusters**
 
 ----------------------------------------------------------
 
-### CLUSTERS, NODES: node_uname_info
+### Clusters, Nodes: node_uname_info
 
 Info about clusters **nodes**. Clusters and Nodes lists / maps are created after this query
 
@@ -72,7 +72,7 @@ Node UID value (**node_uname_info**.k8s_node_uid) used in other metrics to assoc
 
 ----------------------------------------------------------
 
-### PODS: kube_pod_info, kube_pod_status_phase
+### Pods: kube_pod_info, kube_pod_status_phase
 
 #### kube_pod_info
 
@@ -112,7 +112,7 @@ clusters[cluster_uid].Node[parentNodeId].Pod[pod_name] = podInfo
 
 ----------------------------------------------------------
 
-### CONTAINERS: kube_pod_container_info, container_cpu_utilization_ratio
+### Containers: kube_pod_container_info, container_cpu_utilization_ratio
 
 #### kube_pod_container_info
 
