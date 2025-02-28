@@ -172,6 +172,27 @@ func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.Orch
 		}
 	}
 
+	// Rename hosts with the name from metric: tlum_runtime_info and label: node_name
+	// nodes: tlum_runtime_info
+	logs.GetLogger().Info("\t>> QUERY: tlum_runtime_info")
+	q = querier.PromQLQuery{
+		Metric: "tlum_runtime_info",
+		Params: map[string]string{}}
+
+	for _, node := range querier.Query(q.String()) {
+		node_name := string(node.Metric["node_name"])
+		node_id := strings.TrimSpace(string(node.Metric["icos_host_id"]))
+
+		for _, c := range clusters {
+			for _, n := range c.Node {
+				if n.Uuid == node_id {
+					n.Name = node_name
+					clusters[c.Uuid].Node[n.Uuid] = n
+				}
+			}
+		}
+	}
+
 	logs.GetLogger().Debug("\t>> Clusters (Uuid) and nodes (Uuid, IcosHostName) added to infra: ")
 	for _, c := range clusters {
 		logs.GetLogger().Debug("\t     * " + c.Uuid + " (" + c.Type + ", " + c.Engine + ")")
