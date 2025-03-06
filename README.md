@@ -11,11 +11,11 @@ Topology information and infrastructure data is served via HTTP following the da
 
 ## Modules
 ### Server
-Two different servers are implemented: HTTP and gRPC. They listen on the provided port passed as enviroment variable and call the models module every time a client request is received. It is possible to choose among any of them to be launched or to start both at the same time.
+The HTTP server listens on the provided port passed as environment variable and calls the models module every time a client request is received.
 
 ### Models
 Data taxonomy is defined in *models.go* as Golang structs. 
-The file *modeler.go* sends different queries (using *querier.go*) to Thanos and stores the received data. Once completed, it returns all the information in JSON format for web server and in the proto buffer defined format for gRPC server.
+The file *modeler.go* sends different queries (using *querier.go*) to Thanos and stores the received data. Once completed, it returns all the information in JSON format.
 
 ### Querier
 Creates Prometheus API client and sends a query to Thanos. It retrieves the metrics and returns them in a response vector.
@@ -30,32 +30,24 @@ docker build . -t icos-aggregator
   
 #### Launching the aggregator:
 
+Environment variables:
 - PROMETHEUS_ADDRESS: The address where Prometheus/Thanos is located.  
-- HTTP_PORT: If set, HTTP server is launched at port HTTP_PORT.  
-- GRPC_PORT: If set, gRPC server is launched at port GRPC_PORT.
+- HTTP_PORT: Port where the HTTP server will listen. Defaults to 8080 if not set.
 - KEY: If set, Keycloak is enabled and public key set as KEY.
 
-If no port is provided, aggregator launches an HTTP server at port 8080 by default.
-
 ```bash
-docker run -p 8080:8080 -p 8181:8181 -e PROMETHEUS_ADDRESS=http://thanos.192.168.137.200.nip.io/ -e HTTP_PORT=8080 -e GRPC_PORT=8181 icos-aggregator
+docker run -p 8080:8080 -e PROMETHEUS_ADDRESS=http://thanos.192.168.137.200.nip.io/ -e HTTP_PORT=8080 icos-aggregator
 ```
-(Note: HTTP_PORT/GRPC_PORT must be published with the option -p to be able to run the container correctly)
+(Note: HTTP_PORT must be published with the option -p to be able to run the container correctly)
 
 Current Key:
 ```bash
 KEY=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgTGF4mKVEa+eWX0S/+EWIfkkqbLba5WuQ1KKGRQz+P56Y0WNRbgjNl0CObndffmixbpgp4kg5jKq78HoFFP7bj0jQSNC3P26K9xPolFXbAlNJe41VMdI7xOkOF0D9GCplEylGlUlCgpaBnbloI4WcbH+RQ6n6Qp6MmNE+/xC3OMMhgEBacbiGtIR71N/HcDYDUORE335sSRpkrHhMxk3eWgZdIyfX88n9UkI3CtgNGIGgF8/w7ZYF2XBmVuv5+QE9d5fM9pZKWQnzBnsMJy4Xc+qZrZMI45KCHIW/DSFVGSsGboiVHSNVOu3mNhPSjvJtIH/7lItCG6m5zvBAvNf8QIDAQAB
 ```
 
-#### Connecting to the aggregator with HTTP server:
+#### Connecting to the aggregator:
 ```bash
 curl localhost:8080
-```
-  
-  
-#### Connecting to the aggregator with gRPC server (via ETIM client test file):
-```bash
-export AGGR_ADDRESS=localhost && export GRPC_PORT=8182 && go run test/protobuf/etim/server_client.go 
 ```
 
 # Legal
