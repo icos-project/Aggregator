@@ -121,7 +121,7 @@ func GetClusterName(icos_cluster_id string, orchs map[string]models.OrchInfoNode
 // get engine from nuvla node using the icos_host_name or cluster_id value
 func GetNuvlaEngine(icos_host_name string, cluster_id string, orchs map[string]models.OrchInfoNode) string {
 	for _, n := range orchs {
-		if n.IcosHostName == icos_host_name || n.Id == cluster_id {
+		if n.IcosHostName == icos_host_name || n.ClusterId == cluster_id {
 			return n.Engine
 		}
 	}

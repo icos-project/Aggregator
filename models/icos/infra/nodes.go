@@ -126,9 +126,9 @@ func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.Orch
 
 		if cluster_id != "self" {
 			if common.IsNuvlaCluster(icos_host_name, orchs) {
-				cluster_id = common.GetNuvlaClusterName(icos_host_name, orchs)
+				//cluster_id = common.GetNuvlaClusterName(icos_host_name, orchs)
 				cluster_type = "nuvla"
-				engine = common.GetNuvlaEngine(cluster_id, cluster_id, orchs)
+				engine = common.GetNuvlaEngine(common.GetNuvlaClusterName(icos_host_name, orchs), cluster_id, orchs)
 			} else if common.IsOCMCluster(cluster_id, orchs) {
 				cluster_type = "ocm"
 				engine = common.GetEngine(cluster_id, orchs)
