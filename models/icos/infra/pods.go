@@ -60,10 +60,6 @@ func SetPods(clusters map[string]models.Cluster, orchs map[string]models.OrchInf
 		pod_name := string(pod.Metric["pod"])
 		pod_ip := string(pod.Metric["pod_ip"])
 
-		if common.IsNuvlaCluster(icos_host_name, orchs) {
-			icos_cluster_id = common.GetNuvlaClusterName(icos_host_name, orchs)
-		}
-
 		n := common.GetNodeInfo(icos_host_name, clusters[icos_cluster_id].Node)
 
 		if n.Uuid != "" {
@@ -204,10 +200,6 @@ func SetPodsV2(clusters map[string]models.Cluster, orchs map[string]models.OrchI
 		icos_host_name := string(pod.Metric["icos_host_name"])
 		pod_name := string(pod.Metric["name"])
 
-		if common.IsNuvlaCluster(icos_host_name, orchs) {
-			icos_cluster_id = common.GetNuvlaClusterName(icos_host_name, orchs)
-		}
-
 		if common.CheckClusterNode(icos_cluster_id, icos_node_id, clusters, q.Metric) {
 			var p = models.Pod{
 				Uid:                pod_uid,
@@ -252,13 +244,8 @@ func SetPodsV2(clusters map[string]models.Cluster, orchs map[string]models.OrchI
 	for _, pod := range querier.Query(q.String()) {
 		pod_uid := string(pod.Metric["uid"])
 		icos_cluster_id := string(pod.Metric["icos_cluster_id"])
-		icos_host_name := string(pod.Metric["icos_host_name"])
 		pod_ip := string(pod.Metric["pod_ip"])
 		parentNodeId := podsList[pod_uid].ParentNodeId
-
-		if common.IsNuvlaCluster(icos_host_name, orchs) {
-			icos_cluster_id = common.GetNuvlaClusterName(icos_host_name, orchs)
-		}
 
 		if parentNodeId != "" && common.CheckClusterNodePod(icos_cluster_id, parentNodeId, pod_uid, clusters, q.Metric) {
 			p := clusters[icos_cluster_id].Node[parentNodeId].Pod[pod_uid]
@@ -277,13 +264,8 @@ func SetPodsV2(clusters map[string]models.Cluster, orchs map[string]models.OrchI
 	for _, pod := range querier.Query(q.String()) {
 		pod_uid := string(pod.Metric["uid"])
 		icos_cluster_id := string(pod.Metric["icos_cluster_id"])
-		icos_host_name := string(pod.Metric["icos_host_name"])
 		status := string(pod.Metric["phase"])
 		parentNodeId := podsList[pod_uid].ParentNodeId
-
-		if common.IsNuvlaCluster(icos_host_name, orchs) {
-			icos_cluster_id = common.GetNuvlaClusterName(icos_host_name, orchs)
-		}
 
 		if parentNodeId != "" && common.CheckClusterNodePod(icos_cluster_id, parentNodeId, pod_uid, clusters, q.Metric) {
 			p := clusters[icos_cluster_id].Node[parentNodeId].Pod[pod_uid]

@@ -230,12 +230,7 @@ func queryPrometheus() models.Infrastructure {
 	for _, node := range querier.Query(q.String()) {
 		cluster_id := string(node.Metric["k8s_cluster_uid"])
 		node_id := strings.TrimSpace(string(node.Metric["icos_host_id"]))
-		node_name := string(node.Metric["icos_host_name"])
 		ram := int64(node.Value)
-
-		if common.IsNuvlaCluster(node_name, orchs) {
-			cluster_id = common.GetNuvlaClusterName(node_name, orchs)
-		}
 
 		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) {
 			n := clusters[cluster_id].Node[node_id]
@@ -259,7 +254,6 @@ func queryPrometheus() models.Infrastructure {
 	for _, device := range querier.Query(q.String()) {
 		cluster_id := string(device.Metric["k8s_cluster_uid"])
 		node_id := strings.TrimSpace(string(device.Metric["icos_host_id"]))
-		node_name := string(device.Metric["icos_host_name"])
 		device_name := string(device.Metric["device"])
 		device_type := strings.Split(device_name, "_")[0]
 		device_status_n := int8(device.Value)
@@ -273,10 +267,6 @@ func queryPrometheus() models.Infrastructure {
 			device_status = "busy"
 		case 1:
 			device_status = "available"
-		}
-
-		if common.IsNuvlaCluster(node_name, orchs) {
-			cluster_id = common.GetNuvlaClusterName(node_name, orchs)
 		}
 
 		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) {
@@ -301,11 +291,6 @@ func queryPrometheus() models.Infrastructure {
 	for _, host_labels := range querier.Query(q.String()) {
 		node_id := strings.TrimSpace(string(host_labels.Metric["icos_host_id"]))
 		cluster_id := string(host_labels.Metric["k8s_cluster_uid"])
-		node_name := string(host_labels.Metric["icos_host_name"])
-
-		if common.IsNuvlaCluster(node_name, orchs) {
-			cluster_id = common.GetNuvlaClusterName(node_name, orchs)
-		}
 
 		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) {
 			labels := make(map[string]string)
