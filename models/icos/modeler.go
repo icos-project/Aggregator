@@ -290,7 +290,7 @@ func queryPrometheus() models.Infrastructure {
 
 	for _, host_labels := range querier.Query(q.String()) {
 		node_id := strings.TrimSpace(string(host_labels.Metric["icos_host_id"]))
-		cluster_id := string(host_labels.Metric["k8s_cluster_uid"])
+		cluster_id := string(host_labels.Metric["icos_cluster_id"])
 
 		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) {
 			labels := make(map[string]string)
