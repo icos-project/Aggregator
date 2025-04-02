@@ -63,7 +63,7 @@ func queryPrometheus() models.Infrastructure {
 
 	// Get Clusters and Nodes and add them to infra
 	logs.GetLogger().Info("\t>> Getting Clusters and Nodes and adding them to infra ...")
-	infra.SetNodesV2(clusters, orchs)
+	infra.SetNodes(clusters, orchs)
 
 	// Cluster - Node - vulnerabilities and SCA_score
 	//   node_uname_info > net_host_name="10.150.0.144", nodename="icosedge"

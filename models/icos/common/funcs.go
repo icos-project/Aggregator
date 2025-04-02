@@ -107,6 +107,21 @@ func GetEngine(cluster_id string, orchs map[string]models.OrchInfoNode) string {
 	return "unknown" // NOT FOUND / already deleted
 }
 
+// get ClusterLink
+func GetClusterClusterLink(clusterLinks []models.ClusterLinks, icos_cluster_id string, icos_agent_id string) bool {
+	if len(clusterLinks) == 0 {
+		return false
+	}
+
+	for _, c := range clusterLinks {
+		if c.ICOSAgentID == icos_agent_id && c.ICOSClusterID == icos_cluster_id {
+			return true
+		}
+	}
+
+	return false // NOT FOUND
+}
+
 // get name from cluster
 func GetClusterName(icos_cluster_id string, orchs map[string]models.OrchInfoNode) string {
 	for _, n := range orchs {

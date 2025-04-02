@@ -39,12 +39,19 @@ type Timestamp struct {
 
 type Agents []*Cluster
 
+type ClusterLinks struct {
+	ICOSClusterID string `json:"icosClusterID,omitempty"`
+	ICOSAgentID   string `json:"icosAgentID,omitempty"`
+	ClusterLink   bool   `json:"clusterlink,omitempty"`
+}
+
 type Cluster struct {
 	Type                  string                `json:"type,omitempty"`
 	Uuid                  string                `json:"uuid,omitempty"`
 	Name                  string                `json:"name,omitempty"`
 	Engine                string                `json:"engine,omitempty"`
 	ICOSAgentID           string                `json:"icosAgentID,omitempty"`
+	ClusterLink           bool                  `json:"clusterLink"`
 	ServiceLevelAgreement ServiceLevelAgreement `json:"serviceLevelAgreement,omitempty"`
 	API                   API                   `json:"API,omitempty"`
 	Node                  map[string]Node       `json:"node,omitempty"`

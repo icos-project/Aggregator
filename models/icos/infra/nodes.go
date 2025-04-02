@@ -51,7 +51,7 @@ import (
 
   - ...
 */
-func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.OrchInfoNode) {
+func SetNodes(clusters map[string]models.Cluster, orchs map[string]models.OrchInfoNode) {
 
 	// CLUSTERS
 	// clusters: tlum_orch_info
@@ -105,6 +105,25 @@ func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.Orch
 
 	}
 
+	// expose clusterlink in cluster properties
+	var clusterLinks = make([]models.ClusterLinks, 0)
+	logs.GetLogger().Info("\t>> QUERY: tlum_vnet_info")
+	q = querier.PromQLQuery{
+		Metric: "tlum_vnet_info",
+		Params: map[string]string{}}
+
+	for _, res := range querier.Query(q.String()) {
+		icos_cluster_id := string(res.Metric["icos_cluster_id"])
+		icos_agent_id := string(res.Metric["icos_agent_id"])
+		vnet_type := string(res.Metric["type"])
+
+		clusterLinks = append(clusterLinks, models.ClusterLinks{
+			ICOSClusterID: icos_cluster_id,
+			ICOSAgentID:   icos_agent_id,
+			ClusterLink:   vnet_type == "ClusterLink",
+		})
+	}
+
 	// Clusters and Nodes
 	logs.GetLogger().Info("\t>> QUERY: tlum_host_info")
 	q = querier.PromQLQuery{
@@ -144,6 +163,7 @@ func SetNodesV2(clusters map[string]models.Cluster, orchs map[string]models.Orch
 						ICOSAgentID: icos_agent_id,
 						Node:        map[string]models.Node{},
 						Name:        cluster_name,
+						ClusterLink: common.GetClusterClusterLink(clusterLinks, cluster_id, icos_agent_id),
 					}
 					clusters[cluster_id] = newCluster
 				}
