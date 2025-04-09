@@ -1,14 +1,14 @@
 # Start from golang base image
-FROM golang:alpine as builder
+FROM golang:alpine AS builder
 
 # ENV GO111MODULE=on
 
 # Add Maintainer info
-LABEL maintainer="Alberto Llamedo"
+LABEL maintainer="Alberto@Atos"
 
 # Install git.
 # Git is required for fetching the dependencies.
-RUN apk update && apk add --no-cache git \
+RUN apk update && apk add --no-cache git=2.47.2-r0 \
 && rm -rf /var/lib/apt/lists/*
 
 
@@ -30,10 +30,9 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o aggregator .
 
 # Start a new stage from scratch
-FROM alpine:3.17
-RUN apk --no-cache add ca-certificates
-
-RUN addgroup -S icos && adduser -S icos -G icos -u 1001
+FROM alpine:3.21
+RUN apk --no-cache add ca-certificates=20241121-r1 && \
+	addgroup -S icos && adduser -S icos -G icos -u 1001
 USER icos
 
 
