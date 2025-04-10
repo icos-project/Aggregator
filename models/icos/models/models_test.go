@@ -16,7 +16,6 @@ limitations under the License.
 package models
 
 import (
-	"aggregator/models/icos/models"
 	"bytes"
 	"encoding/json"
 	"testing"
@@ -26,9 +25,9 @@ func TestController(t *testing.T) {
 
 	want := []byte(`{"type":"MetaOrchestrator","name":"ICOS1","location":{"name":"BCN"},"serviceLevelAgreement":{},"API":{}}`)
 
-	c := models.Controller{Type: "MetaOrchestrator",
+	c := Controller{Type: "MetaOrchestrator",
 		Name:     "ICOS1",
-		Location: models.Location{Name: "BCN"},
+		Location: Location{Name: "BCN"},
 	}
 
 	got, err := json.Marshal(c)
@@ -49,7 +48,7 @@ func TestController(t *testing.T) {
 func TestCluster(t *testing.T) {
 	want := []byte(`{"type":"Kubernetes","uuid":"123","name":"TestCluster","engine":"k8s","icosAgentID":"agent1","clusterLink":true,"serviceLevelAgreement":{},"API":{}}`)
 
-	c := models.Cluster{
+	c := Cluster{
 		Type:        "Kubernetes",
 		Uuid:        "123",
 		Name:        "TestCluster",
@@ -71,23 +70,23 @@ func TestCluster(t *testing.T) {
 func TestNode(t *testing.T) {
 	want := []byte(`{"type":"Worker","uuid":"node1","name":"worker1","engine":"k8s","location":{"name":"BCN"},"vulnerabilities":{"critical":2},"ScaScore":85,"staticMetrics":{"cpuCores":4,"RAMMemory":8589934592},"dynamicMetrics":{"upTime":3600,"freeRAM":4294967296,"availableStorage":{}}}`)
 
-	n := models.Node{
+	n := Node{
 		Type:   "Worker",
 		Uuid:   "node1",
 		Name:   "worker1",
 		Engine: "k8s",
-		Location: models.Location{
+		Location: Location{
 			Name: "BCN",
 		},
 		Vulnerabilities: map[string]int32{
 			"critical": 2,
 		},
 		ScaScore: 85,
-		StaticMetrics: models.StaticMetrics{
+		StaticMetrics: StaticMetrics{
 			CPUCores:  4,
 			RAMMemory: 8 * 1024 * 1024 * 1024, // 8GB
 		},
-		DynamicMetrics: models.DynamicMetrics{
+		DynamicMetrics: DynamicMetrics{
 			UpTime:  3600,
 			FreeRAM: 4 * 1024 * 1024 * 1024, // 4GB
 		},
@@ -106,13 +105,13 @@ func TestNode(t *testing.T) {
 func TestPod(t *testing.T) {
 	want := []byte(`{"name":"test-pod","ip":"10.0.0.1","status":"Running","numberOfContainers":2,"numberOfApps":1,"container":{"container1":{"name":"container1","ip":"10.0.0.2","node":"node1","port":"8080","containerMemory":"256Mi","cpuUsage":0.5}}}`)
 
-	p := models.Pod{
+	p := Pod{
 		Name:               "test-pod",
 		IP:                 "10.0.0.1",
 		Status:             "Running",
 		NumberOfContainers: 2,
 		NumberOfApps:       1,
-		Container: map[string]models.Container{
+		Container: map[string]Container{
 			"container1": {
 				Name:            "container1",
 				IP:              "10.0.0.2",
@@ -137,7 +136,7 @@ func TestPod(t *testing.T) {
 func TestLocation(t *testing.T) {
 	want := []byte(`{"name":"Barcelona","continent":"Europe","country":"Spain","city":"Barcelona","latitude":41.3851,"longitude":2.1734}`)
 
-	l := models.Location{
+	l := Location{
 		Name:      "Barcelona",
 		Continent: "Europe",
 		Country:   "Spain",
@@ -159,18 +158,18 @@ func TestLocation(t *testing.T) {
 func TestInfrastructure(t *testing.T) {
 	want := []byte(`{"timestamp":{"oldestTimestamp":1617234567.89,"timeSinceOldest":3600},"controller":{"ctrl1":{"type":"MetaOrchestrator","name":"ICOS1","location":{},"serviceLevelAgreement":{},"API":{}}},"cluster":{"cluster1":{"type":"Kubernetes","name":"TestCluster","clusterLink":false,"serviceLevelAgreement":{},"API":{}}}}`)
 
-	i := models.Infrastructure{
-		Timestamp: models.Timestamp{
+	i := Infrastructure{
+		Timestamp: Timestamp{
 			OldestTimestamp: 1617234567.89,
 			TimeSinceOldest: 3600,
 		},
-		Controller: map[string]models.Controller{
+		Controller: map[string]Controller{
 			"ctrl1": {
 				Type: "MetaOrchestrator",
 				Name: "ICOS1",
 			},
 		},
-		Cluster: map[string]models.Cluster{
+		Cluster: map[string]Cluster{
 			"cluster1": {
 				Type: "Kubernetes",
 				Name: "TestCluster",

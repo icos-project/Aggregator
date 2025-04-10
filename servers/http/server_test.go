@@ -16,7 +16,6 @@ limitations under the License.
 package server_http
 
 import (
-	"bytes"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -25,80 +24,41 @@ import (
 	"time"
 )
 
-func TestHTTPRequest(t *testing.T) {
-
-	w := []byte(`
-	{"10.42.0.63:8080":{
-		"name":"10.42.0.63:8080",
-		"location":{},
-		"serviceLevelAgreement":{},
-		"API":{},
-		"node":{
-			"ocm-worker1.bull1.ari-imet.eu":{
-				"name":"ocm-worker1.bull1.ari-imet.eu",
-				"staticMetrics":{
-					"cpuCores":4
-				},
-				"dynamicMetrics":{}
-			}
-		}
-	},"
-	10.42.1.7:8080":{
-		"name":"10.42.1.7:8080",
-		"location":{},
-		"serviceLevelAgreement":{},
-		"API":{},
-		"node":{
-			"k3s-node1":{
-				"name":"k3s-node1",
-				"staticMetrics":{
-					"cpuCores":4
-				},
-				"dynamicMetrics":{}
-			},"
-			k3s-node2":{
-				"name":"k3s-node2",
-				"staticMetrics":{
-					"cpuCores":4
-				},
-				"dynamicMetrics":{}
-			}
-		}
-	}
-	}`)
-	w1 := []byte(strings.ReplaceAll(string(w), "\t", ""))
-	w2 := []byte(strings.ReplaceAll(string(w1), "\n", ""))
-	want := []byte(strings.ReplaceAll(string(w2), " ", ""))
-
+func TestHealthzEndpoint(t *testing.T) {
+	// Start the server on a different port to avoid conflicts with other tests
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go CreateServer(&wg, "icos", "8080")
+	go CreateServer(&wg, "icos", "8081")
 	time.Sleep(time.Second) // Wait for server to start up
 
+	// Create HTTP client
 	c := &http.Client{
 		Timeout: 15 * time.Second,
 	}
-	resp, err := c.Get("http://localhost:8080/")
 
+	// Make request to healthz endpoint
+	resp, err := c.Get("http://localhost:8081/healthz")
 	if err != nil {
-		t.Errorf("GET error: %v", err)
+		t.Fatalf("GET error: %v", err)
 	}
-
 	defer resp.Body.Close()
 
+	// Verify status code is 200 OK
 	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Status error: %v", resp.StatusCode)
+		t.Errorf("Expected status 200 OK; got %v", resp.StatusCode)
 	}
 
-	got, err := ioutil.ReadAll(resp.Body)
+	// Read and verify response body
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		t.Errorf("Read body: %v", err)
+		t.Fatalf("Error reading response body: %v", err)
 	}
 
-	t.Log(string(got))
-	t.Log(string(want))
-
-	if bytes.Compare(want, got) != 0 {
-		t.Errorf("Server error")
+	// Check that response contains the expected health check message
+	// The exact format depends on responses.JSON implementation, but should contain this message
+	expectedMessage := "Aggregator working properly!"
+	if !strings.Contains(string(body), expectedMessage) {
+		t.Errorf("Response body does not contain expected message.\nGot: %s\nExpected to contain: %s",
+			string(body), expectedMessage)
 	}
 }

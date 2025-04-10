@@ -22,7 +22,7 @@ import (
 
 func TestQuery(t *testing.T) {
 
-	os.Setenv("PROMETHEUS_ADDRESS", "http://query.192.168.137.175.nip.io/") // thanos-query
+	os.Setenv("PROMETHEUS_ADDRESS", "http://10.160.3.20:32104")
 
 	q := PromQLQuery{
 		Metric: "vector(100)",

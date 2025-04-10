@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package models_icos
+package modeler
 
 import (
 	"aggregator/models/icos/models"
@@ -24,7 +24,7 @@ import (
 
 func TestQueryPrometheus(t *testing.T) {
 
-	os.Setenv("PROMETHEUS_ADDRESS", "http://query.192.168.137.175.nip.io/") // thanos-query
+	os.Setenv("PROMETHEUS_ADDRESS", "http://10.160.3.20:32104")
 
 	infra := queryPrometheus()
 
