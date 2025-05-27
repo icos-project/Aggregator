@@ -144,7 +144,7 @@ type StaticMetrics struct {
 
 type DynamicMetrics struct {
 	UpTime               float64          `json:"upTime,omitempty"`
-	CPUFrequency         string           `json:"cpuFrequency,omitempty"`
+	CPUFrequency         int64            `json:"cpuFrequency,omitempty"`
 	CPUTemperature       float64          `json:"cpuTemperature,omitempty"`
 	CPUEnergyConsumption float64          `json:"cpuEnergyConsumption,omitempty"`
 	GPUFrequency         string           `json:"gpuFrequency,omitempty"`

@@ -222,6 +222,23 @@ func queryPrometheus() models.Infrastructure {
 		}
 	}
 
+	// Cluster - Node - CPU Frequency
+	logs.GetLogger().Info("\t>> QUERY: avg(node_cpu_scaling_frequency_hertz) by (icos_host_id, icos_cluster_id)")
+	q = querier.PromQLQuery{
+		Metric: "avg(node_cpu_scaling_frequency_hertz) by (icos_host_id, icos_cluster_id)",
+		Params: map[string]string{},
+	}
+	for _, res := range querier.Query(q.String()) {
+		cluster_id := string(res.Metric["icos_cluster_id"])
+		node_id := strings.TrimSpace(string(res.Metric["icos_host_id"]))
+		freq := int64(res.Value)
+		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) {
+			n := clusters[cluster_id].Node[node_id]
+			n.DynamicMetrics.CPUFrequency = freq
+			clusters[cluster_id].Node[node_id] = n
+		}
+	}
+
 	logs.GetLogger().Info("\t>> QUERY: node_memory_MemFree_bytes")
 	q = querier.PromQLQuery{
 		Metric: "node_memory_MemFree_bytes",
