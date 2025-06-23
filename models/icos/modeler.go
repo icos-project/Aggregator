@@ -140,34 +140,20 @@ func queryPrometheus() models.Infrastructure {
 		}
 	}
 
-	logs.GetLogger().Info("\t>> QUERY: node_cpu_frequency_max_hertz")
+	logs.GetLogger().Info("\t>> QUERY: avg(tlum_cpu_max_freq) by(icos_host_id, icos_cluster_id)")
 	q = querier.PromQLQuery{
-		Metric: "node_cpu_frequency_max_hertz",
-		Params: map[string]string{}}
-
-	freqs := make(map[[2]string][]int64)
-	for _, node := range querier.Query(q.String()) {
-		cluster_id := string(node.Metric["k8s_cluster_uid"])
-		node_id := strings.TrimSpace(string(node.Metric["icos_host_id"]))
-		frequency := int64(node.Value)
-
-		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) {
-			key := [2]string{cluster_id, node_id}
-
-			if _, exists := freqs[key]; !exists {
-				freqs[key] = []int64{frequency}
-			} else {
-				l := freqs[key]
-				l = append(l, frequency)
-				freqs[key] = l
-			}
-		}
+		Metric: "avg(tlum_cpu_max_freq) by(icos_host_id, icos_cluster_id)",
+		Params: map[string]string{},
 	}
-	for comb, f := range freqs {
-		maxFrequency := common.MaxInt64(f)
-		n := clusters[comb[0]].Node[comb[1]]
-		n.StaticMetrics.CPUMaxFrequency = maxFrequency
-		clusters[comb[0]].Node[comb[1]] = n
+	for _, res := range querier.Query(q.String()) {
+		cluster_id := string(res.Metric["icos_cluster_id"])
+		node_id := strings.TrimSpace(string(res.Metric["icos_host_id"]))
+		maxFreq := int64(res.Value) * 1000000 // Convert MHz to Hz
+		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) {
+			n := clusters[cluster_id].Node[node_id]
+			n.StaticMetrics.CPUMaxFrequency = maxFreq
+			clusters[cluster_id].Node[node_id] = n
+		}
 	}
 
 	logs.GetLogger().Info("\t>> QUERY: kube_node_status_capacity{resource='memory'} * on(...")
@@ -223,15 +209,15 @@ func queryPrometheus() models.Infrastructure {
 	}
 
 	// Cluster - Node - CPU Frequency
-	logs.GetLogger().Info("\t>> QUERY: avg(node_cpu_scaling_frequency_hertz) by (icos_host_id, icos_cluster_id)")
+	logs.GetLogger().Info("\t>> QUERY: avg(tlum_cpu_freq) by(icos_host_id, icos_cluster_id)")
 	q = querier.PromQLQuery{
-		Metric: "avg(node_cpu_scaling_frequency_hertz) by (icos_host_id, icos_cluster_id)",
+		Metric: "avg(tlum_cpu_freq) by(icos_host_id, icos_cluster_id)",
 		Params: map[string]string{},
 	}
 	for _, res := range querier.Query(q.String()) {
 		cluster_id := string(res.Metric["icos_cluster_id"])
 		node_id := strings.TrimSpace(string(res.Metric["icos_host_id"]))
-		freq := int64(res.Value)
+		freq := int64(res.Value) * 1000000 // Convert MHz to Hz
 		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) {
 			n := clusters[cluster_id].Node[node_id]
 			n.DynamicMetrics.CPUFrequency = freq
@@ -253,6 +239,39 @@ func queryPrometheus() models.Infrastructure {
 			n := clusters[cluster_id].Node[node_id]
 			n.DynamicMetrics.FreeRAM = ram
 			n.DynamicMetrics.UsedRAM = n.StaticMetrics.RAMMemory - ram
+			clusters[cluster_id].Node[node_id] = n
+		}
+	}
+
+	// Cluster - Node - Forecasted Metrics
+	logs.GetLogger().Info("\t>> QUERY: intelligence_node_cpu_utilization_prediction")
+	q = querier.PromQLQuery{
+		Metric: "intelligence_node_cpu_utilization_prediction",
+		Params: map[string]string{},
+	}
+	for _, res := range querier.Query(q.String()) {
+		cluster_id := string(res.Metric["icos_cluster_id"])
+		node_id := strings.TrimSpace(string(res.Metric["icos_host_id"]))
+		cpuPred := float64(res.Value)
+		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) {
+			n := clusters[cluster_id].Node[node_id]
+			n.ForecastedMetrics.CPUUtilizationPrediction = cpuPred
+			clusters[cluster_id].Node[node_id] = n
+		}
+	}
+
+	logs.GetLogger().Info("\t>> QUERY: intelligence_node_memory_utilization_prediction")
+	q = querier.PromQLQuery{
+		Metric: "intelligence_node_memory_utilization_prediction",
+		Params: map[string]string{},
+	}
+	for _, res := range querier.Query(q.String()) {
+		cluster_id := string(res.Metric["icos_cluster_id"])
+		node_id := strings.TrimSpace(string(res.Metric["icos_host_id"]))
+		memPred := float64(res.Value)
+		if common.CheckClusterNode(cluster_id, node_id, clusters, q.Metric) {
+			n := clusters[cluster_id].Node[node_id]
+			n.ForecastedMetrics.MemoryUtilizationPrediction = memPred
 			clusters[cluster_id].Node[node_id] = n
 		}
 	}
@@ -446,6 +465,24 @@ func queryPrometheus() models.Infrastructure {
 				delete(clusters, key_c)
 			}
 		}
+	}
+
+	// Calculate CPU and Memory usage percent for each node
+	for clusterID, cluster := range clusters {
+		for nodeID, node := range cluster.Node {
+			// Memory usage percent
+			if node.StaticMetrics.RAMMemory > 0 {
+				node.DynamicMetrics.MemoryUsagePercent = float64(node.DynamicMetrics.UsedRAM) / float64(node.StaticMetrics.RAMMemory) * 100.0
+			}
+
+			// CPU usage percent: CPUFrequency / CPUMaxFrequency
+			if node.StaticMetrics.CPUMaxFrequency > 0 && node.DynamicMetrics.CPUFrequency > 0 {
+				node.DynamicMetrics.CPUUsagePercent = float64(node.DynamicMetrics.CPUFrequency) / float64(node.StaticMetrics.CPUMaxFrequency) * 100.0
+			}
+
+			cluster.Node[nodeID] = node
+		}
+		clusters[clusterID] = cluster
 	}
 
 	// Timestamps

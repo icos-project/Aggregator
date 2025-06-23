@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  models_icos.API:
+  models.API:
     properties:
       authentication:
         type: string
@@ -13,36 +13,38 @@ definitions:
       protocolVersion:
         type: string
     type: object
-  models_icos.AvailableStorage:
+  models.AvailableStorage:
     properties:
       free:
         type: number
       name:
         type: string
     type: object
-  models_icos.Cluster:
+  models.Cluster:
     properties:
       API:
-        $ref: '#/definitions/models_icos.API'
+        $ref: '#/definitions/models.API'
       any: {}
+      clusterLink:
+        type: boolean
+      engine:
+        type: string
+      icosAgentID:
+        type: string
       name:
         type: string
       node:
         additionalProperties:
-          $ref: '#/definitions/models_icos.Node'
-        type: object
-      pod:
-        additionalProperties:
-          $ref: '#/definitions/models_icos.Pod'
+          $ref: '#/definitions/models.Node'
         type: object
       serviceLevelAgreement:
-        $ref: '#/definitions/models_icos.ServiceLevelAgreement'
+        $ref: '#/definitions/models.ServiceLevelAgreement'
       type:
         type: string
       uuid:
         type: string
     type: object
-  models_icos.Container:
+  models.Container:
     properties:
       containerMemory:
         type: string
@@ -57,21 +59,21 @@ definitions:
       port:
         type: string
     type: object
-  models_icos.Controller:
+  models.Controller:
     properties:
       API:
-        $ref: '#/definitions/models_icos.API'
+        $ref: '#/definitions/models.API'
       any: {}
       location:
-        $ref: '#/definitions/models_icos.Location'
+        $ref: '#/definitions/models.Location'
       name:
         type: string
       serviceLevelAgreement:
-        $ref: '#/definitions/models_icos.ServiceLevelAgreement'
+        $ref: '#/definitions/models.ServiceLevelAgreement'
       type:
         type: string
     type: object
-  models_icos.Device:
+  models.Device:
     properties:
       name:
         type: string
@@ -82,15 +84,17 @@ definitions:
       type:
         type: string
     type: object
-  models_icos.DynamicMetrics:
+  models.DynamicMetrics:
     properties:
       availableStorage:
-        $ref: '#/definitions/models_icos.AvailableStorage'
+        $ref: '#/definitions/models.AvailableStorage'
       cpuEnergyConsumption:
         type: number
       cpuFrequency:
-        type: string
+        type: integer
       cpuTemperature:
+        type: number
+      cpuUsagePercent:
         type: number
       freeRAM:
         type: integer
@@ -100,23 +104,34 @@ definitions:
         type: string
       gpuTemperature:
         type: number
+      memoryUsagePercent:
+        type: number
       upTime:
         type: number
+      usedRAM:
+        type: integer
     type: object
-  models_icos.Infrastructure:
+  models.ForecastedMetrics:
+    properties:
+      cpuUtilizationPrediction:
+        type: number
+      memoryUtilizationPrediction:
+        type: number
+    type: object
+  models.Infrastructure:
     properties:
       cluster:
         additionalProperties:
-          $ref: '#/definitions/models_icos.Cluster'
+          $ref: '#/definitions/models.Cluster'
         type: object
       controller:
         additionalProperties:
-          $ref: '#/definitions/models_icos.Controller'
+          $ref: '#/definitions/models.Controller'
         type: object
       timestamp:
-        $ref: '#/definitions/models_icos.Timestamp'
+        $ref: '#/definitions/models.Timestamp'
     type: object
-  models_icos.Interface:
+  models.Interface:
     properties:
       engressUssage:
         type: string
@@ -135,7 +150,7 @@ definitions:
       type:
         type: string
     type: object
-  models_icos.Location:
+  models.Location:
     properties:
       city:
         type: string
@@ -150,26 +165,38 @@ definitions:
       name:
         type: string
     type: object
-  models_icos.Node:
+  models.Node:
     properties:
       ScaScore:
         type: integer
       devices:
         additionalProperties:
-          $ref: '#/definitions/models_icos.Device'
+          $ref: '#/definitions/models.Device'
         type: object
       dynamicMetrics:
-        $ref: '#/definitions/models_icos.DynamicMetrics'
+        $ref: '#/definitions/models.DynamicMetrics'
+      engine:
+        type: string
+      forecastedMetrics:
+        $ref: '#/definitions/models.ForecastedMetrics'
+      labels:
+        additionalProperties:
+          type: string
+        type: object
       location:
-        $ref: '#/definitions/models_icos.Location'
+        $ref: '#/definitions/models.Location'
       name:
         type: string
       networkInterfaces:
         additionalProperties:
-          $ref: '#/definitions/models_icos.Interface'
+          $ref: '#/definitions/models.Interface'
+        type: object
+      pod:
+        additionalProperties:
+          $ref: '#/definitions/models.Pod'
         type: object
       staticMetrics:
-        $ref: '#/definitions/models_icos.StaticMetrics'
+        $ref: '#/definitions/models.StaticMetrics'
       type:
         type: string
       uuid:
@@ -179,11 +206,11 @@ definitions:
           type: integer
         type: object
     type: object
-  models_icos.Pod:
+  models.Pod:
     properties:
       container:
         additionalProperties:
-          $ref: '#/definitions/models_icos.Container'
+          $ref: '#/definitions/models.Container'
         type: object
       ip:
         type: string
@@ -195,13 +222,17 @@ definitions:
         type: integer
       status:
         type: string
+      workload:
+        additionalProperties:
+          $ref: '#/definitions/models.Workload'
+        type: object
     type: object
-  models_icos.ServiceLevelAgreement:
+  models.ServiceLevelAgreement:
     properties:
       name:
         type: string
     type: object
-  models_icos.StaticMetrics:
+  models.StaticMetrics:
     properties:
       RAMMemory:
         type: integer
@@ -219,10 +250,10 @@ definitions:
         type: string
       storage:
         items:
-          $ref: '#/definitions/models_icos.Storage'
+          $ref: '#/definitions/models.Storage'
         type: array
     type: object
-  models_icos.Storage:
+  models.Storage:
     properties:
       capacity:
         type: number
@@ -231,12 +262,21 @@ definitions:
       type:
         type: string
     type: object
-  models_icos.Timestamp:
+  models.Timestamp:
     properties:
       oldestTimestamp:
         type: number
       timeSinceOldest:
         type: number
+    type: object
+  models.Workload:
+    properties:
+      icos_app_component:
+        type: string
+      icos_app_instance:
+        type: string
+      icos_app_name:
+        type: string
     type: object
 externalDocs:
   description: OpenAPI
@@ -272,7 +312,7 @@ paths:
         "200":
           description: Ok
           schema:
-            $ref: '#/definitions/models_icos.Infrastructure'
+            $ref: '#/definitions/models.Infrastructure'
         "400":
           description: Bad request
           schema:

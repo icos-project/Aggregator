@@ -24,6 +24,7 @@ import (
 
 	logs "aggregator/common/logs"
 	m_icos "aggregator/models/icos"
+	_ "aggregator/models/icos/models"
 	responses "aggregator/servers/http/responses"
 	mid "aggregator/servers/middlewares"
 )
@@ -66,9 +67,9 @@ func CreateServer(wg *sync.WaitGroup, project string, port string) {
 //	@Description	get clusters state
 //	@Accept			json
 //	@Produce		json
-//	@Param			Authorization	header		string					true	"Authentication header"
-//	@Success		200				{object}	m_icos.Infrastructure	"Ok"
-//	@Failure		400				{object}	string					"Bad request"
+//	@Param			Authorization	header		string				true	"Authentication header"
+//	@Success		200			{object}	models.Infrastructure	"Ok"
+//	@Failure		400			{object}	string				"Bad request"
 //	@Router			/ [get]
 func connectToQuerier(project string) http.HandlerFunc {
 

@@ -74,6 +74,7 @@ type Node struct {
 	ScaScore          int32                `json:"ScaScore,omitempty"`
 	StaticMetrics     StaticMetrics        `json:"staticMetrics,omitempty"`
 	DynamicMetrics    DynamicMetrics       `json:"dynamicMetrics,omitempty"`
+	ForecastedMetrics ForecastedMetrics    `json:"forecastedMetrics,omitempty"`
 	NetworkInterfaces map[string]Interface `json:"networkInterfaces,omitempty"`
 	Devices           map[string]Device    `json:"devices,omitempty"`
 	Pod               map[string]Pod       `json:"pod,omitempty"`
@@ -153,6 +154,8 @@ type DynamicMetrics struct {
 	FreeRAM              int64            `json:"freeRAM,omitempty"`
 	UsedRAM              int64            `json:"usedRAM,omitempty"`
 	Storage              AvailableStorage `json:"availableStorage,omitempty"`
+	CPUUsagePercent      float64          `json:"cpuUsagePercent,omitempty"`
+	MemoryUsagePercent   float64          `json:"memoryUsagePercent,omitempty"`
 	//NetworkUsage         NetworkUsage     `json:"networkUsage,omitempty"`
 }
 
@@ -205,4 +208,9 @@ type OrchInfoNode struct {
 	Uuid         string `json:"agent_id,omitempty"`
 	ClusterId    string `json:"icos_cluster_uid,omitempty"` // OCM
 	IcosHostName string `json:"icos_host_name,omitempty"`   // Nuvla
+}
+
+type ForecastedMetrics struct {
+	CPUUtilizationPrediction    float64 `json:"cpuUtilizationPrediction,omitempty"`
+	MemoryUtilizationPrediction float64 `json:"memoryUtilizationPrediction,omitempty"`
 }

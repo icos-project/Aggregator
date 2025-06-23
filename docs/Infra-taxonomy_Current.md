@@ -41,7 +41,7 @@ Infrastrcuture:
             StaticMetrics:
                 CPUArchitecture: #DONE
                 CPUCores: #DONE
-                CPUMaxFrequency: Hertzs #DONE
+                CPUMaxFrequency: Hertz #DONE
                 GPUCores:
                 GPUMaxFrequency:
                 GPURAMMemory:
@@ -52,7 +52,7 @@ Infrastrcuture:
                     Capacity:
             DinamycMetrics:
                 Uptime:
-                CPUFrequency:
+                CPUFrequency: Hertz #DONE
                 CPUTemperature: Celsius #DONE
                 CPUEnergyConsumption: Joules #DONE
                 GPUFrequency:
@@ -64,6 +64,11 @@ Infrastrcuture:
                     Name:
                     Free:
                 Network_usage: # ??
+                CPUUsagePercent: Percentage #DONE
+                MemoryUsagePercent: Percentage #DONE
+            ForecastedMetrics:
+                CPUUtilizationPrediction: Percentage #DONE
+                MemoryUtilizationPrediction: Percentage #DONE
             NetworkInterfaces[]
                 Interface_name: #DONE
                 Interface_type: #DONE

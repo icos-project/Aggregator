@@ -47,7 +47,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Ok",
                         "schema": {
-                            "$ref": "#/definitions/models_icos.Infrastructure"
+                            "$ref": "#/definitions/models.Infrastructure"
                         }
                     },
                     "400": {
@@ -61,7 +61,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models_icos.API": {
+        "models.API": {
             "type": "object",
             "properties": {
                 "authentication": {
@@ -81,7 +81,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models_icos.AvailableStorage": {
+        "models.AvailableStorage": {
             "type": "object",
             "properties": {
                 "free": {
@@ -92,30 +92,33 @@ const docTemplate = `{
                 }
             }
         },
-        "models_icos.Cluster": {
+        "models.Cluster": {
             "type": "object",
             "properties": {
                 "API": {
-                    "$ref": "#/definitions/models_icos.API"
+                    "$ref": "#/definitions/models.API"
                 },
                 "any": {},
+                "clusterLink": {
+                    "type": "boolean"
+                },
+                "engine": {
+                    "type": "string"
+                },
+                "icosAgentID": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
                 "node": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/models_icos.Node"
-                    }
-                },
-                "pod": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/models_icos.Pod"
+                        "$ref": "#/definitions/models.Node"
                     }
                 },
                 "serviceLevelAgreement": {
-                    "$ref": "#/definitions/models_icos.ServiceLevelAgreement"
+                    "$ref": "#/definitions/models.ServiceLevelAgreement"
                 },
                 "type": {
                     "type": "string"
@@ -125,7 +128,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models_icos.Container": {
+        "models.Container": {
             "type": "object",
             "properties": {
                 "containerMemory": {
@@ -148,28 +151,28 @@ const docTemplate = `{
                 }
             }
         },
-        "models_icos.Controller": {
+        "models.Controller": {
             "type": "object",
             "properties": {
                 "API": {
-                    "$ref": "#/definitions/models_icos.API"
+                    "$ref": "#/definitions/models.API"
                 },
                 "any": {},
                 "location": {
-                    "$ref": "#/definitions/models_icos.Location"
+                    "$ref": "#/definitions/models.Location"
                 },
                 "name": {
                     "type": "string"
                 },
                 "serviceLevelAgreement": {
-                    "$ref": "#/definitions/models_icos.ServiceLevelAgreement"
+                    "$ref": "#/definitions/models.ServiceLevelAgreement"
                 },
                 "type": {
                     "type": "string"
                 }
             }
         },
-        "models_icos.Device": {
+        "models.Device": {
             "type": "object",
             "properties": {
                 "name": {
@@ -186,19 +189,22 @@ const docTemplate = `{
                 }
             }
         },
-        "models_icos.DynamicMetrics": {
+        "models.DynamicMetrics": {
             "type": "object",
             "properties": {
                 "availableStorage": {
-                    "$ref": "#/definitions/models_icos.AvailableStorage"
+                    "$ref": "#/definitions/models.AvailableStorage"
                 },
                 "cpuEnergyConsumption": {
                     "type": "number"
                 },
                 "cpuFrequency": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "cpuTemperature": {
+                    "type": "number"
+                },
+                "cpuUsagePercent": {
                     "type": "number"
                 },
                 "freeRAM": {
@@ -213,32 +219,49 @@ const docTemplate = `{
                 "gpuTemperature": {
                     "type": "number"
                 },
+                "memoryUsagePercent": {
+                    "type": "number"
+                },
                 "upTime": {
+                    "type": "number"
+                },
+                "usedRAM": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.ForecastedMetrics": {
+            "type": "object",
+            "properties": {
+                "cpuUtilizationPrediction": {
+                    "type": "number"
+                },
+                "memoryUtilizationPrediction": {
                     "type": "number"
                 }
             }
         },
-        "models_icos.Infrastructure": {
+        "models.Infrastructure": {
             "type": "object",
             "properties": {
                 "cluster": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/models_icos.Cluster"
+                        "$ref": "#/definitions/models.Cluster"
                     }
                 },
                 "controller": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/models_icos.Controller"
+                        "$ref": "#/definitions/models.Controller"
                     }
                 },
                 "timestamp": {
-                    "$ref": "#/definitions/models_icos.Timestamp"
+                    "$ref": "#/definitions/models.Timestamp"
                 }
             }
         },
-        "models_icos.Interface": {
+        "models.Interface": {
             "type": "object",
             "properties": {
                 "engressUssage": {
@@ -267,7 +290,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models_icos.Location": {
+        "models.Location": {
             "type": "object",
             "properties": {
                 "city": {
@@ -290,7 +313,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models_icos.Node": {
+        "models.Node": {
             "type": "object",
             "properties": {
                 "ScaScore": {
@@ -299,14 +322,26 @@ const docTemplate = `{
                 "devices": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/models_icos.Device"
+                        "$ref": "#/definitions/models.Device"
                     }
                 },
                 "dynamicMetrics": {
-                    "$ref": "#/definitions/models_icos.DynamicMetrics"
+                    "$ref": "#/definitions/models.DynamicMetrics"
+                },
+                "engine": {
+                    "type": "string"
+                },
+                "forecastedMetrics": {
+                    "$ref": "#/definitions/models.ForecastedMetrics"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "location": {
-                    "$ref": "#/definitions/models_icos.Location"
+                    "$ref": "#/definitions/models.Location"
                 },
                 "name": {
                     "type": "string"
@@ -314,11 +349,17 @@ const docTemplate = `{
                 "networkInterfaces": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/models_icos.Interface"
+                        "$ref": "#/definitions/models.Interface"
+                    }
+                },
+                "pod": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/models.Pod"
                     }
                 },
                 "staticMetrics": {
-                    "$ref": "#/definitions/models_icos.StaticMetrics"
+                    "$ref": "#/definitions/models.StaticMetrics"
                 },
                 "type": {
                     "type": "string"
@@ -334,13 +375,13 @@ const docTemplate = `{
                 }
             }
         },
-        "models_icos.Pod": {
+        "models.Pod": {
             "type": "object",
             "properties": {
                 "container": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/models_icos.Container"
+                        "$ref": "#/definitions/models.Container"
                     }
                 },
                 "ip": {
@@ -357,10 +398,16 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                },
+                "workload": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/models.Workload"
+                    }
                 }
             }
         },
-        "models_icos.ServiceLevelAgreement": {
+        "models.ServiceLevelAgreement": {
             "type": "object",
             "properties": {
                 "name": {
@@ -368,7 +415,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models_icos.StaticMetrics": {
+        "models.StaticMetrics": {
             "type": "object",
             "properties": {
                 "RAMMemory": {
@@ -395,12 +442,12 @@ const docTemplate = `{
                 "storage": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models_icos.Storage"
+                        "$ref": "#/definitions/models.Storage"
                     }
                 }
             }
         },
-        "models_icos.Storage": {
+        "models.Storage": {
             "type": "object",
             "properties": {
                 "capacity": {
@@ -414,7 +461,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models_icos.Timestamp": {
+        "models.Timestamp": {
             "type": "object",
             "properties": {
                 "oldestTimestamp": {
@@ -422,6 +469,20 @@ const docTemplate = `{
                 },
                 "timeSinceOldest": {
                     "type": "number"
+                }
+            }
+        },
+        "models.Workload": {
+            "type": "object",
+            "properties": {
+                "icos_app_component": {
+                    "type": "string"
+                },
+                "icos_app_instance": {
+                    "type": "string"
+                },
+                "icos_app_name": {
+                    "type": "string"
                 }
             }
         }
