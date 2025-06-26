@@ -8,7 +8,7 @@ LABEL maintainer="Alberto@Atos"
 
 # Install git.
 # Git is required for fetching the dependencies.
-RUN apk update && apk add --no-cache git=2.50.0-r0 \
+RUN apk update && apk add --no-cache git=2.49.0-r0 \
 && rm -rf /var/lib/apt/lists/*
 
 
