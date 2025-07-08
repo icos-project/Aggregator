@@ -129,7 +129,7 @@ func queryPrometheus() models.Infrastructure {
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
-		cluster_id := string(node.Metric["k8s_cluster_uid"])
+		cluster_id := string(node.Metric["icos_cluster_id"])
 		node_id := strings.TrimSpace(string(node.Metric["icos_host_id"]))
 		cores := int32(node.Value)
 
@@ -156,13 +156,13 @@ func queryPrometheus() models.Infrastructure {
 		}
 	}
 
-	logs.GetLogger().Info("\t>> QUERY: kube_node_status_capacity{resource='memory'} * on(...")
+	logs.GetLogger().Info("\t>> QUERY: 	node_memory_MemTotal_bytes")
 	q = querier.PromQLQuery{
-		Metric: "kube_node_status_capacity{resource='memory'} * on(icos_agent_id, icos_host_name) group_left(icos_host_id) node_uname_info",
+		Metric: "node_memory_MemTotal_bytes",
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
-		cluster_id := string(node.Metric["k8s_cluster_uid"])
+		cluster_id := string(node.Metric["icos_cluster_id"])
 		node_id := strings.TrimSpace(string(node.Metric["icos_host_id"]))
 		ram := int64(node.Value)
 
@@ -180,7 +180,7 @@ func queryPrometheus() models.Infrastructure {
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
-		cluster_id := string(node.Metric["k8s_cluster_uid"])
+		cluster_id := string(node.Metric["icos_cluster_id"])
 		node_id := strings.TrimSpace(string(node.Metric["icos_host_id"]))
 		temp := float64(node.Value)
 
@@ -197,7 +197,7 @@ func queryPrometheus() models.Infrastructure {
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
-		cluster_id := string(node.Metric["k8s_cluster_uid"])
+		cluster_id := string(node.Metric["icos_cluster_id"])
 		node_id := strings.TrimSpace(string(node.Metric["icos_host_id"]))
 		energy := float64(node.Value) / 1000000
 
@@ -231,7 +231,7 @@ func queryPrometheus() models.Infrastructure {
 		Params: map[string]string{}}
 
 	for _, node := range querier.Query(q.String()) {
-		cluster_id := string(node.Metric["k8s_cluster_uid"])
+		cluster_id := string(node.Metric["icos_cluster_id"])
 		node_id := strings.TrimSpace(string(node.Metric["icos_host_id"]))
 		ram := int64(node.Value)
 
@@ -288,7 +288,7 @@ func queryPrometheus() models.Infrastructure {
 		Params: map[string]string{}}
 
 	for _, device := range querier.Query(q.String()) {
-		cluster_id := string(device.Metric["k8s_cluster_uid"])
+		cluster_id := string(device.Metric["icos_cluster_id"])
 		node_id := strings.TrimSpace(string(device.Metric["icos_host_id"]))
 		device_name := string(device.Metric["device"])
 		device_type := strings.Split(device_name, "_")[0]
@@ -360,7 +360,7 @@ func queryPrometheus() models.Infrastructure {
 
 	for _, container := range querier.Query(q.String()) {
 		pod_uid := string(container.Metric["uid"])
-		cluster_id := string(container.Metric["k8s_cluster_uid"])
+		cluster_id := string(container.Metric["icos_cluster_id"])
 		cont_name := string(container.Metric["container"])
 		node := strings.TrimSpace(string(container.Metric["icos_host_id"]))
 		parentNodeId := podsList[pod_uid].ParentNodeId
@@ -420,7 +420,7 @@ func queryPrometheus() models.Infrastructure {
 	var clusterIdName = map[string]string{}
 
 	for _, cluster := range querier.Query(q.String()) {
-		cluster_id := string(cluster.Metric["k8s_cluster_uid"])
+		cluster_id := string(cluster.Metric["icos_cluster_id"])
 		cluster_name := string(cluster.Metric["name"])
 
 		clusterIdName[cluster_id] = cluster_name
