@@ -44,7 +44,7 @@ import (
 
 func main() {
 
-	logs.GetLogger().Info("Starting ICOS Aggregator [v1] [2025.05.27] ...")
+	logs.GetLogger().Info("Starting ICOS Aggregator [v1] [2025.07.10] ...")
 
 	// Get ports
 	http_port := os.Getenv("HTTP_PORT")
